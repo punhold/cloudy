@@ -9,9 +9,8 @@
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600&family=Caveat:wght@400;600&display=swap" rel="stylesheet" />
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
 :root {
-  --bg: #f0f6fb;
+  --bg: #eef4f9;
   --surface: #ffffff;
   --accent: #3a8fc4;
   --accent-light: #e0f0f9;
@@ -22,34 +21,29 @@
   --shadow: 0 2px 12px rgba(58,100,140,0.08);
   --radius: 12px;
   --radius-sm: 8px;
+  --cork: #c8a96e;
 }
-
-body {
-  font-family: 'Sora', sans-serif;
-  background: var(--bg);
-  color: var(--text);
-  min-height: 100vh;
-}
-
-.app { max-width: 780px; margin: 0 auto; padding: 2rem 1.25rem 4rem; }
+body { font-family: 'Sora', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+.app { max-width: 820px; margin: 0 auto; padding: 1.75rem 1.25rem 4rem; }
 
 /* Header */
-header { display: flex; align-items: center; gap: 12px; margin-bottom: 2rem; flex-wrap: wrap; }
-.logo { width: 40px; height: 40px; border-radius: 12px; background: linear-gradient(135deg, #a8d8f0, #3a8fc4); display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
-header h1 { font-size: 22px; font-weight: 600; letter-spacing: -0.5px; }
+header { display: flex; align-items: center; gap: 12px; margin-bottom: 1.5rem; flex-wrap: wrap; }
+.logo { width: 38px; height: 38px; border-radius: 11px; background: linear-gradient(135deg, #a8d8f0, #3a8fc4); display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+header h1 { font-size: 20px; font-weight: 600; letter-spacing: -0.5px; }
 header h1 span { color: var(--accent); }
-.file-count { margin-left: auto; font-size: 12px; color: var(--text-muted); background: var(--surface); border: 1px solid var(--border); padding: 4px 10px; border-radius: 20px; }
-.new-sticky-btn { background: #fef08a; border: 1px solid #d4b800; color: #7a6500; border-radius: var(--radius-sm); padding: 6px 12px; font-family: 'Sora', sans-serif; font-size: 12px; font-weight: 500; cursor: pointer; transition: background 0.15s; }
-.new-sticky-btn:hover { background: #fde047; }
+.header-right { margin-left: auto; display: flex; align-items: center; gap: 8px; }
+.item-count { font-size: 12px; color: var(--text-muted); background: var(--surface); border: 1px solid var(--border); padding: 4px 10px; border-radius: 20px; }
+.new-sticky-btn { background: #fef08a; border: 1px solid #c8a800; color: #6b5500; border-radius: var(--radius-sm); padding: 6px 13px; font-family: 'Sora', sans-serif; font-size: 12px; font-weight: 500; cursor: pointer; transition: all 0.15s; display: flex; align-items: center; gap: 5px; }
+.new-sticky-btn:hover { background: #fde047; transform: translateY(-1px); box-shadow: 0 3px 8px rgba(200,168,0,0.3); }
 
 /* Search */
 .search-wrap { margin-bottom: 1.25rem; }
-.search-box { display: flex; align-items: center; gap: 10px; background: var(--surface); border: 1.5px solid var(--border-strong); border-radius: var(--radius); padding: 12px 16px; box-shadow: var(--shadow); transition: border-color 0.2s, box-shadow 0.2s; }
-.search-box:focus-within { border-color: var(--accent); box-shadow: 0 0 0 4px rgba(58,143,196,0.12); }
+.search-box { display: flex; align-items: center; gap: 10px; background: var(--surface); border: 1.5px solid var(--border-strong); border-radius: var(--radius); padding: 11px 16px; box-shadow: var(--shadow); transition: border-color 0.2s, box-shadow 0.2s; }
+.search-box:focus-within { border-color: var(--accent); box-shadow: 0 0 0 4px rgba(58,143,196,0.1); }
 .search-box input { flex: 1; border: none; outline: none; background: transparent; font-family: 'Sora', sans-serif; font-size: 14px; color: var(--text); }
 .search-box input::placeholder { color: var(--text-muted); }
-.search-icon { color: var(--text-muted); font-size: 15px; flex-shrink: 0; }
-.ask-btn { background: var(--accent); color: #fff; border: none; border-radius: var(--radius-sm); padding: 7px 14px; font-family: 'Sora', sans-serif; font-size: 13px; font-weight: 500; cursor: pointer; transition: background 0.2s; }
+.search-icon { color: var(--text-muted); font-size: 14px; flex-shrink: 0; }
+.ask-btn { background: var(--accent); color: #fff; border: none; border-radius: var(--radius-sm); padding: 7px 14px; font-family: 'Sora', sans-serif; font-size: 13px; font-weight: 500; cursor: pointer; transition: background 0.2s; white-space: nowrap; }
 .ask-btn:hover { background: #2e7aad; }
 .ask-btn:disabled { background: var(--text-muted); cursor: not-allowed; }
 
@@ -61,47 +55,123 @@ header h1 span { color: var(--accent); }
 .ai-sources { margin-top: 10px; display: flex; gap: 6px; flex-wrap: wrap; }
 .ai-src { font-size: 11px; padding: 3px 9px; border-radius: 20px; background: var(--accent-light); color: var(--accent); border: 1px solid rgba(58,143,196,0.25); font-weight: 500; }
 
+/* ===== TABLERO DE CORCHO ===== */
+.board-section { margin-bottom: 2rem; }
+.board-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+.board-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.7px; color: var(--text-muted); }
+.board-empty-hint { font-size: 12px; color: var(--text-muted); font-style: italic; }
+
+.corkboard {
+  background:
+    repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(0,0,0,0.03) 28px, rgba(0,0,0,0.03) 29px),
+    repeating-linear-gradient(90deg, transparent, transparent 28px, rgba(0,0,0,0.03) 28px, rgba(0,0,0,0.03) 29px),
+    linear-gradient(135deg, #d4a96a 0%, #c49558 40%, #d4a96a 70%, #bf9050 100%);
+  border-radius: 14px;
+  padding: 20px;
+  min-height: 80px;
+  box-shadow: inset 0 2px 8px rgba(0,0,0,0.15), 0 2px 8px rgba(0,0,0,0.08);
+  border: 2px solid #b8843a;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+  gap: 16px;
+  align-items: start;
+}
+.corkboard.empty { display: flex; align-items: center; justify-content: center; }
+.corkboard-empty { color: rgba(255,255,255,0.5); font-size: 13px; text-align: center; padding: 12px; }
+
+/* Papelito en el tablero */
+.board-note {
+  background: #fef08a;
+  border-radius: 3px;
+  padding: 10px 12px 28px;
+  min-height: 110px;
+  box-shadow: 3px 4px 10px rgba(0,0,0,0.25), 0 1px 0 rgba(255,255,255,0.5) inset;
+  position: relative;
+  cursor: pointer;
+  transition: transform 0.15s, box-shadow 0.15s;
+  animation: note-drop 0.25s cubic-bezier(.34,1.4,.64,1);
+}
+.board-note:nth-child(odd)  { transform: rotate(-1.5deg); }
+.board-note:nth-child(even) { transform: rotate(1deg); }
+.board-note:nth-child(3n)   { transform: rotate(-0.5deg); }
+.board-note:hover { transform: rotate(0deg) scale(1.04) translateY(-3px) !important; box-shadow: 5px 8px 20px rgba(0,0,0,0.3); z-index: 2; }
+
+@keyframes note-drop { from { transform: rotate(-3deg) translateY(-12px); opacity: 0; } to { } }
+
+/* Tachuela */
+.board-note::before {
+  content: '';
+  width: 12px; height: 12px;
+  background: radial-gradient(circle at 35% 35%, #e0e0e0, #888);
+  border-radius: 50%;
+  position: absolute;
+  top: -5px; left: 50%; transform: translateX(-50%);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.4);
+  z-index: 1;
+}
+
+.board-note-text {
+  font-family: 'Caveat', cursive;
+  font-size: 16px; line-height: 1.5;
+  color: #2a2000;
+  word-break: break-word;
+  white-space: pre-wrap;
+  display: -webkit-box; -webkit-line-clamp: 5; -webkit-box-orient: vertical; overflow: hidden;
+}
+.board-note-text.empty { color: rgba(100,80,0,0.35); font-style: italic; }
+
+.board-note-actions {
+  position: absolute; bottom: 6px; right: 8px;
+  display: flex; gap: 4px; opacity: 0; transition: opacity 0.15s;
+}
+.board-note:hover .board-note-actions { opacity: 1; }
+.note-action-btn {
+  width: 22px; height: 22px; border-radius: 5px;
+  border: none; cursor: pointer; font-size: 11px;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(0,0,0,0.1); color: rgba(0,0,0,0.5);
+  transition: background 0.12s;
+}
+.note-action-btn:hover { background: rgba(0,0,0,0.2); color: rgba(0,0,0,0.8); }
+.note-action-btn.del-note:hover { background: rgba(180,0,0,0.2); color: #900; }
+
+/* ===== ARCHIVOS ===== */
+.files-section { }
+.section-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.7px; color: var(--text-muted); margin-bottom: 10px; }
+
 /* Stats */
-.stats { display: flex; gap: 10px; margin-bottom: 1.5rem; }
-.stat { flex: 1; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 12px 14px; text-align: center; box-shadow: var(--shadow); }
-.stat-n { font-size: 22px; font-weight: 600; }
-.stat-l { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+.stats { display: flex; gap: 10px; margin-bottom: 1.25rem; }
+.stat { flex: 1; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 10px 14px; text-align: center; box-shadow: var(--shadow); }
+.stat-n { font-size: 20px; font-weight: 600; }
+.stat-l { font-size: 11px; color: var(--text-muted); margin-top: 1px; }
 
 /* Upload zone */
-.upload-zone { background: var(--surface); border: 2px dashed var(--border-strong); border-radius: var(--radius); padding: 28px 20px; text-align: center; cursor: pointer; margin-bottom: 1.5rem; transition: all 0.2s; }
+.upload-zone { background: var(--surface); border: 2px dashed var(--border-strong); border-radius: var(--radius); padding: 22px 20px; text-align: center; cursor: pointer; margin-bottom: 1.25rem; transition: all 0.2s; }
 .upload-zone:hover, .upload-zone.drag-over { border-color: var(--accent); background: var(--accent-light); }
 .upload-zone input { display: none; }
-.upload-icon { font-size: 28px; margin-bottom: 10px; }
-.upload-title { font-size: 14px; font-weight: 500; margin-bottom: 4px; }
+.upload-icon { font-size: 24px; margin-bottom: 8px; }
+.upload-title { font-size: 14px; font-weight: 500; margin-bottom: 3px; }
 .upload-sub { font-size: 12px; color: var(--text-muted); }
 
 /* Progress */
 .upload-progress { margin-bottom: 1rem; display: none; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 12px 16px; }
 .upload-progress.visible { display: block; }
-.prog-bar-wrap { background: var(--bg); border-radius: 20px; height: 6px; margin-top: 8px; }
-.prog-bar { height: 6px; border-radius: 20px; background: var(--accent); width: 0%; transition: width 0.3s; }
-
-.section-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.7px; color: var(--text-muted); margin-bottom: 10px; }
+.prog-bar-wrap { background: var(--bg); border-radius: 20px; height: 5px; margin-top: 8px; }
+.prog-bar { height: 5px; border-radius: 20px; background: var(--accent); width: 0%; transition: width 0.3s; }
 
 /* File list */
-.file-list { display: flex; flex-direction: column; gap: 8px; }
-.file-card { display: flex; align-items: center; gap: 12px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 12px 14px; box-shadow: var(--shadow); transition: border-color 0.15s, transform 0.1s; animation: fade-in 0.2s ease; }
+.file-list { display: flex; flex-direction: column; gap: 7px; }
+.file-card { display: flex; align-items: center; gap: 12px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 11px 14px; box-shadow: var(--shadow); transition: border-color 0.15s, transform 0.1s; animation: fade-in 0.2s ease; }
 .file-card:hover { border-color: var(--border-strong); transform: translateY(-1px); }
 .file-card.highlighted { border-color: var(--accent); background: var(--accent-light); }
-.file-card.sticky-card { cursor: default; }
-.file-card.sticky-card:hover { transform: none; }
-.sticky-preview { font-family: 'Caveat', cursive; font-size: 16px; color: #5a4a00; flex: 1; min-width: 0; line-height: 1.4; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.sticky-preview.empty { opacity: 0.4; font-style: italic; }
-
 @keyframes fade-in { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
 
-.file-ico { width: 38px; height: 38px; border-radius: 9px; display: flex; align-items: center; justify-content: center; font-size: 17px; flex-shrink: 0; }
+.file-ico { width: 36px; height: 36px; border-radius: 9px; display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
 .file-ico.xlsx { background: #e8f5e0; }
 .file-ico.csv  { background: #e0f5ee; }
 .file-ico.txt, .file-ico.md { background: #fff3e0; }
 .file-ico.pdf  { background: #fce8e8; }
 .file-ico.docx, .file-ico.doc { background: #e8eef8; }
-.file-ico.sticky { background: #fef08a; }
 .file-ico.other { background: var(--bg); }
 
 .file-info { flex: 1; min-width: 0; }
@@ -115,16 +185,14 @@ header h1 span { color: var(--accent); }
 .tag.txt, .tag.md { background: #fff3e0; color: #854f0b; }
 .tag.pdf  { background: #fce8e8; color: #a32d2d; }
 .tag.docx, .tag.doc { background: #e8eef8; color: #185fa5; }
-.tag.sticky { background: #fef08a; color: #7a6500; border: 1px solid #d4b800; }
 .tag.other { background: var(--bg); color: var(--text-muted); }
 
-.icon-btn { width: 28px; height: 28px; border-radius: 7px; display: flex; align-items: center; justify-content: center; font-size: 12px; cursor: pointer; border: 1px solid var(--border); background: var(--bg); color: var(--text-muted); opacity: 0; transition: opacity 0.15s, background 0.15s; text-decoration: none; }
+.icon-btn { width: 26px; height: 26px; border-radius: 7px; display: flex; align-items: center; justify-content: center; font-size: 12px; cursor: pointer; border: 1px solid var(--border); background: var(--bg); color: var(--text-muted); opacity: 0; transition: opacity 0.15s, background 0.15s; text-decoration: none; }
 .file-card:hover .icon-btn { opacity: 1; }
 .icon-btn:hover { background: var(--surface); color: var(--text); }
 .icon-btn.del:hover { background: #fce8e8; color: #a32d2d; border-color: #f09595; }
-.icon-btn.float-btn:hover { background: #fef08a; color: #7a6500; border-color: #d4b800; }
 
-.empty { text-align: center; padding: 2.5rem 1rem; color: var(--text-muted); font-size: 13px; }
+.empty { text-align: center; padding: 2rem 1rem; color: var(--text-muted); font-size: 13px; }
 
 /* Toast */
 .toast { position: fixed; bottom: 1.5rem; right: 1.5rem; background: var(--text); color: #fff; padding: 10px 16px; border-radius: var(--radius-sm); font-size: 13px; font-weight: 500; transform: translateY(60px); opacity: 0; transition: all 0.25s; pointer-events: none; z-index: 998; }
@@ -138,38 +206,29 @@ header h1 span { color: var(--accent); }
 
 /* ===== STICKIES FLOTANTES ===== */
 .sticky-layer { position: fixed; inset: 0; pointer-events: none; z-index: 200; }
-
-.sticky-float {
-  position: absolute; width: 224px; min-height: 150px;
-  border-radius: 4px 12px 4px 4px;
-  box-shadow: 4px 5px 16px rgba(0,0,0,0.18), 0 1px 0 rgba(255,255,255,0.6) inset;
-  pointer-events: all; display: flex; flex-direction: column;
-  animation: sticky-pop 0.18s cubic-bezier(.34,1.56,.64,1);
-}
-@keyframes sticky-pop { from { transform: scale(0.8) rotate(-2deg); opacity: 0; } to { transform: scale(1) rotate(0); opacity: 1; } }
-
-.sticky-float-handle { height: 30px; border-radius: 4px 12px 0 0; background: rgba(0,0,0,0.08); cursor: grab; display: flex; align-items: center; justify-content: space-between; padding: 0 10px; flex-shrink: 0; user-select: none; }
+.sticky-float { position: absolute; width: 220px; min-height: 150px; border-radius: 3px; box-shadow: 5px 6px 18px rgba(0,0,0,0.22), 0 1px 0 rgba(255,255,255,0.5) inset; pointer-events: all; display: flex; flex-direction: column; animation: sticky-pop 0.2s cubic-bezier(.34,1.4,.64,1); }
+@keyframes sticky-pop { from { transform: scale(0.82) rotate(-2deg); opacity: 0; } to { transform: scale(1) rotate(0); opacity: 1; } }
+.sticky-float-handle { height: 28px; border-radius: 3px 3px 0 0; background: rgba(0,0,0,0.09); cursor: grab; display: flex; align-items: center; justify-content: space-between; padding: 0 10px; flex-shrink: 0; user-select: none; }
 .sticky-float-handle:active { cursor: grabbing; }
-.sticky-dots { font-size: 14px; color: rgba(0,0,0,0.25); letter-spacing: 3px; margin-top: -2px; }
-.sticky-close { width: 16px; height: 16px; border-radius: 50%; background: rgba(0,0,0,0.15); border: none; cursor: pointer; font-size: 9px; color: rgba(0,0,0,0.4); display: flex; align-items: center; justify-content: center; transition: background 0.15s; line-height: 1; }
-.sticky-close:hover { background: rgba(180,0,0,0.35); color: #900; }
-
-.sticky-float textarea { flex: 1; border: none; outline: none; background: transparent; resize: none; font-family: 'Caveat', cursive; font-size: 17px; color: #2a2000; padding: 10px 12px; line-height: 1.55; min-height: 110px; }
-
+.sticky-dots { font-size: 13px; color: rgba(0,0,0,0.2); letter-spacing: 3px; }
+.sticky-close { width: 15px; height: 15px; border-radius: 50%; background: rgba(0,0,0,0.13); border: none; cursor: pointer; font-size: 8px; color: rgba(0,0,0,0.4); display: flex; align-items: center; justify-content: center; transition: background 0.15s; line-height: 1; }
+.sticky-close:hover { background: rgba(180,0,0,0.3); color: #800; }
+.sticky-float textarea { flex: 1; border: none; outline: none; background: transparent; resize: none; font-family: 'Caveat', cursive; font-size: 17px; color: #2a2000; padding: 10px 12px; line-height: 1.55; min-height: 112px; }
 .sticky-float-footer { display: flex; gap: 6px; padding: 7px 10px; border-top: 1px solid rgba(0,0,0,0.07); flex-shrink: 0; align-items: center; }
 .color-dot { width: 14px; height: 14px; border-radius: 50%; cursor: pointer; border: 1.5px solid rgba(0,0,0,0.08); transition: transform 0.1s, border-color 0.1s; }
 .color-dot:hover { transform: scale(1.25); }
-.color-dot.active { border-color: rgba(0,0,0,0.45); transform: scale(1.1); }
+.color-dot.active { border-color: rgba(0,0,0,0.4); transform: scale(1.1); }
 </style>
 </head>
 <body>
-
 <div class="app">
   <header>
     <div class="logo">☁️</div>
     <h1>cloud<span>y</span></h1>
-    <button class="new-sticky-btn" id="new-sticky-btn">📝 Nueva nota</button>
-    <span class="file-count" id="file-count">cargando...</span>
+    <div class="header-right">
+      <button class="new-sticky-btn" id="new-sticky-btn">📝 Nueva nota</button>
+      <span class="item-count" id="item-count">cargando...</span>
+    </div>
   </header>
 
   <div class="search-wrap">
@@ -186,26 +245,40 @@ header h1 span { color: var(--accent); }
     <div class="ai-sources" id="ai-sources"></div>
   </div>
 
-  <div class="stats" id="stats" style="display:none">
-    <div class="stat"><div class="stat-n" id="s-xlsx">0</div><div class="stat-l">Excels</div></div>
-    <div class="stat"><div class="stat-n" id="s-docs">0</div><div class="stat-l">Notas / Docs</div></div>
-    <div class="stat"><div class="stat-n" id="s-other">0</div><div class="stat-l">Otros</div></div>
+  <!-- Tablero -->
+  <div class="board-section">
+    <div class="board-header">
+      <span class="board-label">📌 Tablero de notas</span>
+      <span class="board-empty-hint" id="board-hint" style="display:none">Hacé click en "Nueva nota" para agregar</span>
+    </div>
+    <div class="corkboard empty" id="corkboard">
+      <div class="corkboard-empty">Todavía no hay notas.<br>Hacé click en "📝 Nueva nota"</div>
+    </div>
   </div>
 
-  <div class="upload-zone" id="upload-zone">
-    <input type="file" id="file-input" multiple accept=".xlsx,.xls,.csv,.txt,.md,.pdf,.docx,.doc" />
-    <div class="upload-icon">☁️</div>
-    <div class="upload-title">Arrastrá archivos o hacé click para subir</div>
-    <div class="upload-sub">Excel · CSV · TXT · Markdown · PDF · Word — máx. 20 MB</div>
-  </div>
+  <!-- Archivos -->
+  <div class="files-section">
+    <div class="stats" id="stats" style="display:none">
+      <div class="stat"><div class="stat-n" id="s-xlsx">0</div><div class="stat-l">Excels</div></div>
+      <div class="stat"><div class="stat-n" id="s-docs">0</div><div class="stat-l">Notas / Docs</div></div>
+      <div class="stat"><div class="stat-n" id="s-other">0</div><div class="stat-l">Otros</div></div>
+    </div>
 
-  <div class="upload-progress" id="upload-progress">
-    <span style="font-size:13px;font-weight:500">Subiendo...</span>
-    <div class="prog-bar-wrap"><div class="prog-bar" id="prog-bar"></div></div>
-  </div>
+    <div class="upload-zone" id="upload-zone">
+      <input type="file" id="file-input" multiple accept=".xlsx,.xls,.csv,.txt,.md,.pdf,.docx,.doc" />
+      <div class="upload-icon">☁️</div>
+      <div class="upload-title">Arrastrá archivos o hacé click para subir</div>
+      <div class="upload-sub">Excel · CSV · TXT · Markdown · PDF · Word — máx. 20 MB</div>
+    </div>
 
-  <div class="section-label" id="files-label" style="display:none">Tus archivos y notas</div>
-  <div class="file-list" id="file-list"></div>
+    <div class="upload-progress" id="upload-progress">
+      <span style="font-size:13px;font-weight:500">Subiendo...</span>
+      <div class="prog-bar-wrap"><div class="prog-bar" id="prog-bar"></div></div>
+    </div>
+
+    <div class="section-label" id="files-label" style="display:none">Archivos</div>
+    <div class="file-list" id="file-list"></div>
+  </div>
 </div>
 
 <div class="sticky-layer" id="sticky-layer"></div>
@@ -218,7 +291,9 @@ let highlightedFiles = new Set();
 let stickies = [];
 let stickyIdCounter = 0;
 const COLORS = ['#fef08a','#bbf7d0','#bfdbfe','#fecaca','#e9d5ff'];
-const BORDER_COLORS = {'#fef08a':'#c8a800','#bbf7d0':'#16a34a','#bfdbfe':'#2563eb','#fecaca':'#dc2626','#e9d5ff':'#9333ea'};
+const PIN_COLORS = {'#fef08a':'#c8a800','#bbf7d0':'#16a34a','#bfdbfe':'#2563eb','#fecaca':'#dc2626','#e9d5ff':'#9333ea'};
+// Per-note rotation seeds so they stay consistent
+const ROTATIONS = [-1.8, 1.2, -0.6, 1.8, -1.2, 0.8, -1.5, 1.0];
 
 function saveStickies() { localStorage.setItem('cloudy_stickies', JSON.stringify(stickies)); }
 function loadStickiesStorage() { try { return JSON.parse(localStorage.getItem('cloudy_stickies')||'[]'); } catch { return []; } }
@@ -241,48 +316,63 @@ function toast(msg,err=false) {
   setTimeout(()=>t.className='toast',2800);
 }
 
+// ── Corkboard ──
+function renderBoard() {
+  const board=document.getElementById('corkboard');
+  if(!stickies.length) {
+    board.className='corkboard empty';
+    board.innerHTML='<div class="corkboard-empty">Todavía no hay notas.<br>Hacé click en "📝 Nueva nota"</div>';
+    return;
+  }
+  board.className='corkboard';
+  board.innerHTML='';
+  stickies.forEach((s,i)=>{
+    const rot=ROTATIONS[i % ROTATIONS.length];
+    const note=document.createElement('div');
+    note.className='board-note';
+    note.style.background=s.color;
+    note.style.transform=`rotate(${rot}deg)`;
+    note.style.setProperty('--rot',rot+'deg');
+    const preview=s.text||'';
+    note.innerHTML=`
+      <div class="board-note-text${preview?'':' empty'}">${preview||'Nota vacía...'}</div>
+      <div class="board-note-actions">
+        <button class="note-action-btn" data-sid="${s.id}" title="Abrir flotante">↗</button>
+        <button class="note-action-btn del-note" data-sid="${s.id}" title="Eliminar">✕</button>
+      </div>`;
+    // Click on note body opens float
+    note.addEventListener('click', e=>{
+      if(e.target.closest('.board-note-actions')) return;
+      showStickyFloat(s.id);
+    });
+    board.appendChild(note);
+  });
+  board.querySelectorAll('.note-action-btn:not(.del-note)').forEach(b=>b.addEventListener('click',()=>showStickyFloat(parseInt(b.dataset.sid))));
+  board.querySelectorAll('.note-action-btn.del-note').forEach(b=>b.addEventListener('click',()=>deleteSticky(parseInt(b.dataset.sid))));
+}
+
+// ── Files ──
 async function loadFiles() {
-  try { const r=await fetch(API+'/api/files'); allFiles=await r.json(); renderAll(); updateStats(); }
+  try { const r=await fetch(API+'/api/files'); allFiles=await r.json(); renderFiles(); updateStats(); }
   catch { toast('No se pudo conectar al servidor',true); }
 }
 
 function updateStats() {
   const n=allFiles.length, sn=stickies.length;
-  document.getElementById('file-count').textContent=(n+sn)+' items';
+  document.getElementById('item-count').textContent=(n+sn)+' items';
   document.getElementById('stats').style.display=n?'flex':'none';
-  document.getElementById('files-label').style.display=(n||sn)?'block':'none';
+  document.getElementById('files-label').style.display=n?'block':'none';
   document.getElementById('s-xlsx').textContent=allFiles.filter(f=>['xlsx','xls','csv'].includes(ext(f.name))).length;
   document.getElementById('s-docs').textContent=allFiles.filter(f=>['txt','md','docx','doc'].includes(ext(f.name))).length;
   document.getElementById('s-other').textContent=allFiles.filter(f=>!['xlsx','xls','csv','txt','md','docx','doc'].includes(ext(f.name))).length;
 }
 
-function renderAll() {
+function renderFiles() {
   const list=document.getElementById('file-list');
-  if(!allFiles.length && !stickies.length) {
-    list.innerHTML='<div class="empty">Todavía no hay archivos ni notas.</div>'; return;
-  }
+  if(!allFiles.length) { list.innerHTML=''; return; }
   list.innerHTML='';
-
-  // Stickies en la lista
-  stickies.forEach(s=>{
-    const card=document.createElement('div');
-    card.className='file-card sticky-card';
-    card.style.background=s.color+'bb';
-    card.style.borderColor=BORDER_COLORS[s.color]||'#ccc';
-    const preview=s.text||'';
-    card.innerHTML=`
-      <div class="file-ico sticky">📝</div>
-      <div class="sticky-preview${preview?'':' empty'}">${preview||'Nota vacía...'}</div>
-      <div class="file-actions">
-        <span class="tag sticky">NOTA</span>
-        <button class="icon-btn float-btn" data-sid="${s.id}" title="Abrir flotante">↗</button>
-        <button class="icon-btn del" data-sid="${s.id}" title="Eliminar">✕</button>
-      </div>`;
-    list.appendChild(card);
-  });
-
-  // Archivos
   const toShow=highlightedFiles.size?allFiles.filter(f=>highlightedFiles.has(f.name)):allFiles;
+  if(!toShow.length) { list.innerHTML='<div class="empty">No se encontraron archivos.</div>'; return; }
   toShow.forEach(f=>{
     const e=ext(f.name),c=cat(e),hl=highlightedFiles.has(f.name);
     const card=document.createElement('div');
@@ -295,15 +385,12 @@ function renderAll() {
       </div>
       <div class="file-actions">
         <span class="tag ${c}">${e.toUpperCase()}</span>
-        <a href="/api/files/${encodeURIComponent(f.name)}/download" download="${f.name}" class="icon-btn" title="Descargar / Abrir">⬇</a>
+        <a href="/api/files/${encodeURIComponent(f.name)}/download" download="${f.name}" class="icon-btn" title="Descargar">⬇</a>
         <button class="icon-btn del" data-name="${f.name}" title="Eliminar">✕</button>
       </div>`;
     list.appendChild(card);
   });
-
   list.querySelectorAll('.del[data-name]').forEach(b=>b.addEventListener('click',()=>deleteFile(b.dataset.name)));
-  list.querySelectorAll('.del[data-sid]').forEach(b=>b.addEventListener('click',()=>deleteSticky(parseInt(b.dataset.sid))));
-  list.querySelectorAll('.float-btn').forEach(b=>b.addEventListener('click',()=>showStickyFloat(parseInt(b.dataset.sid))));
 }
 
 async function uploadFiles(fileList) {
@@ -346,7 +433,7 @@ async function doSearch() {
     highlightedFiles=new Set(data.sources||[]);
     sourcesEl.innerHTML='';
     data.sources?.forEach(s=>{ const t=document.createElement('span'); t.className='ai-src'; t.textContent='📎 '+s; sourcesEl.appendChild(t); });
-    renderAll();
+    renderFiles();
   } catch { answerEl.textContent='Error de conexión.'; }
   finally { document.getElementById('ask-btn').disabled=false; }
 }
@@ -356,16 +443,16 @@ function getTopZ() { let z=200; document.querySelectorAll('.sticky-float').forEa
 
 function createSticky(opts={}) {
   stickyIdCounter++;
-  const s={ id:stickyIdCounter, text:opts.text||'', color:opts.color||COLORS[0], x:opts.x??Math.round(100+Math.random()*160), y:opts.y??Math.round(100+Math.random()*120) };
+  const s={ id:stickyIdCounter, text:opts.text||'', color:opts.color||COLORS[0], x:opts.x??220, y:opts.y??120 };
   stickies.push(s); saveStickies();
   return s;
 }
 
 function deleteSticky(id) {
   stickies=stickies.filter(s=>s.id!==id);
-  const el=document.querySelector(`.sticky[data-sid="${id}"]`);
+  const el=document.querySelector(`.sticky-float[data-sid="${id}"]`);
   if(el) el.remove();
-  saveStickies(); renderAll(); updateStats();
+  saveStickies(); renderBoard(); updateStats();
 }
 
 function showStickyFloat(id) {
@@ -392,24 +479,20 @@ function spawnStickyEl(s) {
     </div>`;
 
   makeDraggable(el, el.querySelector('.sticky-float-handle'), s);
-
   el.querySelector('.sticky-close').addEventListener('click',()=>{
     el.style.opacity='0'; el.style.transform='scale(0.85)'; el.style.transition='all 0.15s';
     setTimeout(()=>el.remove(),150);
   });
-
   const ta=el.querySelector('textarea');
-  ta.addEventListener('input',()=>{ s.text=ta.value; saveStickies(); renderAll(); });
-
+  ta.addEventListener('input',()=>{ s.text=ta.value; saveStickies(); renderBoard(); });
   el.querySelectorAll('.color-dot').forEach(dot=>{
     dot.addEventListener('click',()=>{
       const c=dot.dataset.color;
       s.color=c; el.style.background=c;
       el.querySelectorAll('.color-dot').forEach(d=>d.classList.toggle('active',d.dataset.color===c));
-      saveStickies(); renderAll();
+      saveStickies(); renderBoard();
     });
   });
-
   el.addEventListener('mousedown',()=>el.style.zIndex=getTopZ()+1);
   layer.appendChild(el);
   ta.focus();
@@ -428,18 +511,22 @@ function makeDraggable(el, handle, s) {
 }
 
 function newSticky() {
-  const s=createSticky({ x:Math.round(window.innerWidth/2-112+Math.random()*60-30), y:Math.round(130+Math.random()*60) });
+  const s=createSticky({
+    x: Math.round(window.innerWidth/2 - 110 + (Math.random()*80-40)),
+    y: Math.round(160 + Math.random()*80),
+    color: COLORS[stickies.length % COLORS.length]
+  });
+  renderBoard(); updateStats();
   spawnStickyEl(s);
-  renderAll(); updateStats();
 }
 
-// Init
 function init() {
   const saved=loadStickiesStorage();
   if(saved.length) {
     stickyIdCounter=Math.max(...saved.map(s=>s.id||0));
     stickies=saved;
   }
+  renderBoard();
 }
 
 document.getElementById('search-input').addEventListener('keydown',e=>{if(e.key==='Enter')doSearch();});
