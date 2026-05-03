@@ -90,7 +90,7 @@ header h1 span { color: var(--accent); }
 .file-card.highlighted { border-color: var(--accent); background: var(--accent-light); }
 .file-card.sticky-card { cursor: default; }
 .file-card.sticky-card:hover { transform: none; }
-.sticky-preview { font-family: 'Caveat', cursive; font-size: 16px; color: #5a4a00; flex: 1; line-height: 1.4; white-space: pre-wrap; word-break: break-word; max-height: 60px; overflow: hidden; }
+.sticky-preview { font-family: 'Caveat', cursive; font-size: 16px; color: #5a4a00; flex: 1; min-width: 0; line-height: 1.4; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .sticky-preview.empty { opacity: 0.4; font-style: italic; }
 
 @keyframes fade-in { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
@@ -139,7 +139,7 @@ header h1 span { color: var(--accent); }
 /* ===== STICKIES FLOTANTES ===== */
 .sticky-layer { position: fixed; inset: 0; pointer-events: none; z-index: 200; }
 
-.sticky {
+.sticky-float {
   position: absolute; width: 224px; min-height: 150px;
   border-radius: 4px 12px 4px 4px;
   box-shadow: 4px 5px 16px rgba(0,0,0,0.18), 0 1px 0 rgba(255,255,255,0.6) inset;
@@ -148,15 +148,15 @@ header h1 span { color: var(--accent); }
 }
 @keyframes sticky-pop { from { transform: scale(0.8) rotate(-2deg); opacity: 0; } to { transform: scale(1) rotate(0); opacity: 1; } }
 
-.sticky-handle { height: 30px; border-radius: 4px 12px 0 0; background: rgba(0,0,0,0.08); cursor: grab; display: flex; align-items: center; justify-content: space-between; padding: 0 10px; flex-shrink: 0; user-select: none; }
-.sticky-handle:active { cursor: grabbing; }
+.sticky-float-handle { height: 30px; border-radius: 4px 12px 0 0; background: rgba(0,0,0,0.08); cursor: grab; display: flex; align-items: center; justify-content: space-between; padding: 0 10px; flex-shrink: 0; user-select: none; }
+.sticky-float-handle:active { cursor: grabbing; }
 .sticky-dots { font-size: 14px; color: rgba(0,0,0,0.25); letter-spacing: 3px; margin-top: -2px; }
 .sticky-close { width: 16px; height: 16px; border-radius: 50%; background: rgba(0,0,0,0.15); border: none; cursor: pointer; font-size: 9px; color: rgba(0,0,0,0.4); display: flex; align-items: center; justify-content: center; transition: background 0.15s; line-height: 1; }
 .sticky-close:hover { background: rgba(180,0,0,0.35); color: #900; }
 
-.sticky textarea { flex: 1; border: none; outline: none; background: transparent; resize: none; font-family: 'Caveat', cursive; font-size: 17px; color: #2a2000; padding: 10px 12px; line-height: 1.55; min-height: 110px; }
+.sticky-float textarea { flex: 1; border: none; outline: none; background: transparent; resize: none; font-family: 'Caveat', cursive; font-size: 17px; color: #2a2000; padding: 10px 12px; line-height: 1.55; min-height: 110px; }
 
-.sticky-footer { display: flex; gap: 6px; padding: 7px 10px; border-top: 1px solid rgba(0,0,0,0.07); flex-shrink: 0; align-items: center; }
+.sticky-float-footer { display: flex; gap: 6px; padding: 7px 10px; border-top: 1px solid rgba(0,0,0,0.07); flex-shrink: 0; align-items: center; }
 .color-dot { width: 14px; height: 14px; border-radius: 50%; cursor: pointer; border: 1.5px solid rgba(0,0,0,0.08); transition: transform 0.1s, border-color 0.1s; }
 .color-dot:hover { transform: scale(1.25); }
 .color-dot.active { border-color: rgba(0,0,0,0.45); transform: scale(1.1); }
@@ -352,7 +352,7 @@ async function doSearch() {
 }
 
 // ── Stickies ──
-function getTopZ() { let z=200; document.querySelectorAll('.sticky').forEach(el=>{const zz=parseInt(el.style.zIndex||200);if(zz>z)z=zz;}); return z; }
+function getTopZ() { let z=200; document.querySelectorAll('.sticky-float').forEach(el=>{const zz=parseInt(el.style.zIndex||200);if(zz>z)z=zz;}); return z; }
 
 function createSticky(opts={}) {
   stickyIdCounter++;
@@ -369,7 +369,7 @@ function deleteSticky(id) {
 }
 
 function showStickyFloat(id) {
-  const existing=document.querySelector(`.sticky[data-sid="${id}"]`);
+  const existing=document.querySelector(`.sticky-float[data-sid="${id}"]`);
   if(existing){ existing.style.zIndex=getTopZ()+1; existing.querySelector('textarea').focus(); return; }
   const s=stickies.find(s=>s.id===id);
   if(s) spawnStickyEl(s);
@@ -378,20 +378,20 @@ function showStickyFloat(id) {
 function spawnStickyEl(s) {
   const layer=document.getElementById('sticky-layer');
   const el=document.createElement('div');
-  el.className='sticky'; el.dataset.sid=s.id;
+  el.className='sticky-float'; el.dataset.sid=s.id;
   el.style.cssText=`left:${s.x}px;top:${s.y}px;background:${s.color};z-index:${getTopZ()+1};`;
 
   el.innerHTML=`
-    <div class="sticky-handle">
+    <div class="sticky-float-handle">
       <span class="sticky-dots">· · ·</span>
       <button class="sticky-close">✕</button>
     </div>
     <textarea placeholder="Escribí tu nota...">${s.text}</textarea>
-    <div class="sticky-footer">
+    <div class="sticky-float-footer">
       ${COLORS.map(c=>`<div class="color-dot${s.color===c?' active':''}" style="background:${c}" data-color="${c}"></div>`).join('')}
     </div>`;
 
-  makeDraggable(el, el.querySelector('.sticky-handle'), s);
+  makeDraggable(el, el.querySelector('.sticky-float-handle'), s);
 
   el.querySelector('.sticky-close').addEventListener('click',()=>{
     el.style.opacity='0'; el.style.transform='scale(0.85)'; el.style.transition='all 0.15s';
