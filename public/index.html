@@ -357,7 +357,7 @@ function getTopZ() { let z=200; document.querySelectorAll('.sticky').forEach(el=
 function createSticky(opts={}) {
   stickyIdCounter++;
   const s={ id:stickyIdCounter, text:opts.text||'', color:opts.color||COLORS[0], x:opts.x??Math.round(100+Math.random()*160), y:opts.y??Math.round(100+Math.random()*120) };
-  stickies.push(s); saveStickies(); renderAll(); updateStats();
+  stickies.push(s); saveStickies();
   return s;
 }
 
@@ -430,6 +430,7 @@ function makeDraggable(el, handle, s) {
 function newSticky() {
   const s=createSticky({ x:Math.round(window.innerWidth/2-112+Math.random()*60-30), y:Math.round(130+Math.random()*60) });
   spawnStickyEl(s);
+  renderAll(); updateStats();
 }
 
 // Init
@@ -438,7 +439,6 @@ function init() {
   if(saved.length) {
     stickyIdCounter=Math.max(...saved.map(s=>s.id||0));
     stickies=saved;
-    saved.forEach(s=>spawnStickyEl(s));
   }
 }
 
