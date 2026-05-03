@@ -4,6 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Cloudy</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>☁️</text></svg>" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600&family=Caveat:wght@400;600&display=swap" rel="stylesheet" />
@@ -111,8 +112,8 @@ header h1 span { color: var(--accent); }
 }
 
 .board-note-text {
-  font-family: 'Caveat', cursive;
-  font-size: 16px; line-height: 1.5;
+  font-family: 'Sora', sans-serif;
+  font-size: 13px; font-weight: 400; line-height: 1.6;
   color: #2a2000;
   word-break: break-word;
   white-space: pre-wrap;
@@ -206,14 +207,14 @@ header h1 span { color: var(--accent); }
 
 /* ===== STICKIES FLOTANTES ===== */
 .sticky-layer { position: fixed; inset: 0; pointer-events: none; z-index: 200; }
-.sticky-float { position: absolute; width: 220px; min-height: 150px; border-radius: 3px; box-shadow: 5px 6px 18px rgba(0,0,0,0.22), 0 1px 0 rgba(255,255,255,0.5) inset; pointer-events: all; display: flex; flex-direction: column; animation: sticky-pop 0.2s cubic-bezier(.34,1.4,.64,1); }
+.sticky-float { position: absolute; width: 260px; min-height: 180px; border-radius: 3px; box-shadow: 5px 6px 18px rgba(0,0,0,0.22), 0 1px 0 rgba(255,255,255,0.5) inset; pointer-events: all; display: flex; flex-direction: column; animation: sticky-pop 0.2s cubic-bezier(.34,1.4,.64,1); resize: both; overflow: hidden; min-width: 200px; max-width: 520px; max-height: 600px; }
 @keyframes sticky-pop { from { transform: scale(0.82) rotate(-2deg); opacity: 0; } to { transform: scale(1) rotate(0); opacity: 1; } }
-.sticky-float-handle { height: 28px; border-radius: 3px 3px 0 0; background: rgba(0,0,0,0.09); cursor: grab; display: flex; align-items: center; justify-content: space-between; padding: 0 10px; flex-shrink: 0; user-select: none; }
+.sticky-float-handle { height: 30px; border-radius: 3px 3px 0 0; background: rgba(0,0,0,0.09); cursor: grab; display: flex; align-items: center; justify-content: space-between; padding: 0 10px; flex-shrink: 0; user-select: none; }
 .sticky-float-handle:active { cursor: grabbing; }
 .sticky-dots { font-size: 13px; color: rgba(0,0,0,0.2); letter-spacing: 3px; }
-.sticky-close { width: 15px; height: 15px; border-radius: 50%; background: rgba(0,0,0,0.13); border: none; cursor: pointer; font-size: 8px; color: rgba(0,0,0,0.4); display: flex; align-items: center; justify-content: center; transition: background 0.15s; line-height: 1; }
+.sticky-close { width: 16px; height: 16px; border-radius: 50%; background: rgba(0,0,0,0.13); border: none; cursor: pointer; font-size: 9px; color: rgba(0,0,0,0.4); display: flex; align-items: center; justify-content: center; transition: background 0.15s; line-height: 1; }
 .sticky-close:hover { background: rgba(180,0,0,0.3); color: #800; }
-.sticky-float textarea { flex: 1; border: none; outline: none; background: transparent; resize: none; font-family: 'Caveat', cursive; font-size: 17px; color: #2a2000; padding: 10px 12px; line-height: 1.55; min-height: 112px; }
+.sticky-float textarea { flex: 1; border: none; outline: none; background: transparent; resize: none; font-family: 'Sora', sans-serif; font-size: 14px; font-weight: 400; color: #2a2000; padding: 12px 14px; line-height: 1.65; min-height: 130px; }
 .sticky-float-footer { display: flex; gap: 6px; padding: 7px 10px; border-top: 1px solid rgba(0,0,0,0.07); flex-shrink: 0; align-items: center; }
 .color-dot { width: 14px; height: 14px; border-radius: 50%; cursor: pointer; border: 1.5px solid rgba(0,0,0,0.08); transition: transform 0.1s, border-color 0.1s; }
 .color-dot:hover { transform: scale(1.25); }
