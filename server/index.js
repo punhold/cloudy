@@ -121,39 +121,40 @@ app.post('/api/search', async (req, res) => {
   const { query } = req.body;
   if (!query) return res.status(400).json({ error: 'Missing query' });
 
+  // Include notes — goes FIRST so the model prioritizes them
+  const notas = readNotas().filter(n => n.text && n.text.trim());
+  const notasSummary = notas.length
+    ? '=== NOTAS DEL USUARIO ===\n' + notas.map((n,i) => `[Nota ${i+1}]: ${n.text.slice(0,800)}`).join('\n\n')
+    : '(no hay notas)';
+
   // Read text content of readable files
   const textExts = ['.txt', '.md', '.csv'];
   const files = fs.readdirSync(UPLOADS_DIR);
-  const fileContents = files.map(name => {
+  const fileContents = files.filter(name => {
     const ext = path.extname(name).toLowerCase();
+    return textExts.includes(ext);
+  }).map(name => {
     let content = '';
-    if (textExts.includes(ext)) {
-      try { content = fs.readFileSync(path.join(UPLOADS_DIR, name), 'utf8').slice(0, 1500); } catch {}
-    }
-    return { name, ext: ext.replace('.', ''), content };
+    try { content = fs.readFileSync(path.join(UPLOADS_DIR, name), 'utf8').slice(0, 1500); } catch {}
+    return `=== ARCHIVO: ${name} ===\n${content}`;
   });
 
-  // Include notes
-  const notas = readNotas().filter(n => n.text && n.text.trim());
-  const notasSummary = notas.length
-    ? '\n\n--- NOTAS DEL USUARIO ---\n' + notas.map((n,i) => `Nota ${i+1}: ${n.text.slice(0,500)}`).join('\n')
-    : '';
+  const prompt = `Sos un asistente personal. Tenés acceso a las notas y archivos del usuario. Tu trabajo es buscar información EXACTA dentro de ese contenido y responder con lo que encontrás.
 
-  const filesSummary = fileContents.map(f =>
-    `Archivo: ${f.name} (${f.ext.toUpperCase()})` +
-    (f.content ? `\nContenido: ${f.content}` : '\n[archivo binario]')
-  ).join('\n\n---\n\n');
+${notasSummary}
 
-  const prompt = `Sos un asistente que ayuda a encontrar información en archivos y notas personales de trabajo.
+${fileContents.join('\n\n')}
 
-El usuario tiene estos archivos:
-${filesSummary}${notasSummary}
+---
+Pregunta del usuario: "${query}"
 
-Pregunta: "${query}"
-
-Respondé en español, de forma concisa (2-4 oraciones). Si encontrás info relevante indicá en qué archivo o nota está.
-Finalizá con una línea que empiece con "ARCHIVOS:" y liste los nombres de archivos relevantes separados por coma (o "ninguno").
-No agregues explicaciones extra después de la línea ARCHIVOS.`;
+Instrucciones:
+- Buscá la respuesta ÚNICAMENTE en el contenido de las notas y archivos de arriba.
+- Si encontrás la información, citá exactamente de qué nota o archivo viene.
+- Si NO encontrás la información, respondé: "No encontré esa información en tus notas ni archivos."
+- NO inventes ni supongas información que no esté en el texto.
+- Respondé en español, breve y directo.
+- Última línea debe ser "ARCHIVOS:" seguido de los nombres de archivos relevantes separados por coma (o "ninguno").`;
 
   try {
     const response = await fetch(`${OLLAMA_URL}/api/chat`, {
