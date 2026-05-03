@@ -6,14 +6,13 @@
 <title>Cloudy</title>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600&family=Caveat:wght@400;600&display=swap" rel="stylesheet" />
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
   --bg: #f0f6fb;
   --surface: #ffffff;
-  --surface2: #f5f9fd;
   --accent: #3a8fc4;
   --accent-light: #e0f0f9;
   --text: #1a2633;
@@ -30,153 +29,79 @@ body {
   background: var(--bg);
   color: var(--text);
   min-height: 100vh;
-  padding: 0;
 }
 
-/* Layout */
 .app { max-width: 780px; margin: 0 auto; padding: 2rem 1.25rem 4rem; }
 
 /* Header */
-header {
-  display: flex; align-items: center; gap: 12px;
-  margin-bottom: 2rem;
-}
-.logo {
-  width: 40px; height: 40px; border-radius: 12px;
-  background: linear-gradient(135deg, #a8d8f0, #3a8fc4);
-  display: flex; align-items: center; justify-content: center;
-  font-size: 20px; flex-shrink: 0;
-}
+header { display: flex; align-items: center; gap: 12px; margin-bottom: 2rem; flex-wrap: wrap; }
+.logo { width: 40px; height: 40px; border-radius: 12px; background: linear-gradient(135deg, #a8d8f0, #3a8fc4); display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
 header h1 { font-size: 22px; font-weight: 600; letter-spacing: -0.5px; }
 header h1 span { color: var(--accent); }
-.file-count {
-  margin-left: auto;
-  font-size: 12px; color: var(--text-muted);
-  background: var(--surface); border: 1px solid var(--border);
-  padding: 4px 10px; border-radius: 20px;
-}
+.file-count { margin-left: auto; font-size: 12px; color: var(--text-muted); background: var(--surface); border: 1px solid var(--border); padding: 4px 10px; border-radius: 20px; }
+.new-sticky-btn { background: #fef08a; border: 1px solid #d4b800; color: #7a6500; border-radius: var(--radius-sm); padding: 6px 12px; font-family: 'Sora', sans-serif; font-size: 12px; font-weight: 500; cursor: pointer; transition: background 0.15s; }
+.new-sticky-btn:hover { background: #fde047; }
 
 /* Search */
 .search-wrap { margin-bottom: 1.25rem; }
-.search-box {
-  display: flex; align-items: center; gap: 10px;
-  background: var(--surface); border: 1.5px solid var(--border-strong);
-  border-radius: var(--radius); padding: 12px 16px;
-  box-shadow: var(--shadow);
-  transition: border-color 0.2s, box-shadow 0.2s;
-}
-.search-box:focus-within {
-  border-color: var(--accent);
-  box-shadow: 0 0 0 4px rgba(58,143,196,0.12);
-}
-.search-box input {
-  flex: 1; border: none; outline: none; background: transparent;
-  font-family: 'Sora', sans-serif; font-size: 14px; color: var(--text);
-}
+.search-box { display: flex; align-items: center; gap: 10px; background: var(--surface); border: 1.5px solid var(--border-strong); border-radius: var(--radius); padding: 12px 16px; box-shadow: var(--shadow); transition: border-color 0.2s, box-shadow 0.2s; }
+.search-box:focus-within { border-color: var(--accent); box-shadow: 0 0 0 4px rgba(58,143,196,0.12); }
+.search-box input { flex: 1; border: none; outline: none; background: transparent; font-family: 'Sora', sans-serif; font-size: 14px; color: var(--text); }
 .search-box input::placeholder { color: var(--text-muted); }
 .search-icon { color: var(--text-muted); font-size: 15px; flex-shrink: 0; }
-.ask-btn {
-  background: var(--accent); color: #fff; border: none;
-  border-radius: var(--radius-sm); padding: 7px 14px;
-  font-family: 'Sora', sans-serif; font-size: 13px; font-weight: 500;
-  cursor: pointer; white-space: nowrap;
-  transition: background 0.2s, transform 0.1s;
-}
+.ask-btn { background: var(--accent); color: #fff; border: none; border-radius: var(--radius-sm); padding: 7px 14px; font-family: 'Sora', sans-serif; font-size: 13px; font-weight: 500; cursor: pointer; transition: background 0.2s; }
 .ask-btn:hover { background: #2e7aad; }
-.ask-btn:active { transform: scale(0.97); }
 .ask-btn:disabled { background: var(--text-muted); cursor: not-allowed; }
 
 /* AI bubble */
-.ai-bubble {
-  background: var(--surface); border: 1px solid var(--border-strong);
-  border-left: 3px solid var(--accent);
-  border-radius: var(--radius); padding: 14px 16px;
-  margin-bottom: 1.25rem; display: none;
-  animation: fade-in 0.2s ease;
-}
+.ai-bubble { background: var(--surface); border: 1px solid var(--border-strong); border-left: 3px solid var(--accent); border-radius: var(--radius); padding: 14px 16px; margin-bottom: 1.25rem; display: none; animation: fade-in 0.2s ease; }
 .ai-bubble.visible { display: block; }
-.ai-label {
-  font-size: 11px; font-weight: 600; color: var(--accent);
-  text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 8px;
-}
+.ai-label { font-size: 11px; font-weight: 600; color: var(--accent); text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 8px; }
 .ai-answer { font-size: 14px; line-height: 1.65; color: var(--text); }
 .ai-sources { margin-top: 10px; display: flex; gap: 6px; flex-wrap: wrap; }
-.ai-src {
-  font-size: 11px; padding: 3px 9px; border-radius: 20px;
-  background: var(--accent-light); color: var(--accent);
-  border: 1px solid rgba(58,143,196,0.25); font-weight: 500;
-}
+.ai-src { font-size: 11px; padding: 3px 9px; border-radius: 20px; background: var(--accent-light); color: var(--accent); border: 1px solid rgba(58,143,196,0.25); font-weight: 500; }
 
 /* Stats */
 .stats { display: flex; gap: 10px; margin-bottom: 1.5rem; }
-.stat {
-  flex: 1; background: var(--surface); border: 1px solid var(--border);
-  border-radius: var(--radius); padding: 12px 14px; text-align: center;
-  box-shadow: var(--shadow);
-}
+.stat { flex: 1; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 12px 14px; text-align: center; box-shadow: var(--shadow); }
 .stat-n { font-size: 22px; font-weight: 600; }
 .stat-l { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
 
 /* Upload zone */
-.upload-zone {
-  background: var(--surface); border: 2px dashed var(--border-strong);
-  border-radius: var(--radius); padding: 28px 20px;
-  text-align: center; cursor: pointer; margin-bottom: 1.5rem;
-  transition: all 0.2s; position: relative;
-}
-.upload-zone:hover, .upload-zone.drag-over {
-  border-color: var(--accent);
-  background: var(--accent-light);
-}
+.upload-zone { background: var(--surface); border: 2px dashed var(--border-strong); border-radius: var(--radius); padding: 28px 20px; text-align: center; cursor: pointer; margin-bottom: 1.5rem; transition: all 0.2s; }
+.upload-zone:hover, .upload-zone.drag-over { border-color: var(--accent); background: var(--accent-light); }
 .upload-zone input { display: none; }
 .upload-icon { font-size: 28px; margin-bottom: 10px; }
 .upload-title { font-size: 14px; font-weight: 500; margin-bottom: 4px; }
 .upload-sub { font-size: 12px; color: var(--text-muted); }
 
 /* Progress */
-.upload-progress {
-  margin-bottom: 1rem; display: none;
-  background: var(--surface); border: 1px solid var(--border);
-  border-radius: var(--radius); padding: 12px 16px;
-}
+.upload-progress { margin-bottom: 1rem; display: none; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 12px 16px; }
 .upload-progress.visible { display: block; }
 .prog-bar-wrap { background: var(--bg); border-radius: 20px; height: 6px; margin-top: 8px; }
 .prog-bar { height: 6px; border-radius: 20px; background: var(--accent); width: 0%; transition: width 0.3s; }
 
-/* Section label */
-.section-label {
-  font-size: 11px; font-weight: 600; text-transform: uppercase;
-  letter-spacing: 0.7px; color: var(--text-muted); margin-bottom: 10px;
-}
+.section-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.7px; color: var(--text-muted); margin-bottom: 10px; }
 
 /* File list */
 .file-list { display: flex; flex-direction: column; gap: 8px; }
-.file-card {
-  display: flex; align-items: center; gap: 12px;
-  background: var(--surface); border: 1px solid var(--border);
-  border-radius: var(--radius); padding: 12px 14px;
-  box-shadow: var(--shadow);
-  transition: border-color 0.15s, transform 0.1s;
-  animation: fade-in 0.2s ease;
-}
+.file-card { display: flex; align-items: center; gap: 12px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 12px 14px; box-shadow: var(--shadow); transition: border-color 0.15s, transform 0.1s; animation: fade-in 0.2s ease; }
 .file-card:hover { border-color: var(--border-strong); transform: translateY(-1px); }
 .file-card.highlighted { border-color: var(--accent); background: var(--accent-light); }
+.file-card.sticky-card { cursor: default; }
+.file-card.sticky-card:hover { transform: none; }
+.sticky-preview { font-family: 'Caveat', cursive; font-size: 16px; color: #5a4a00; flex: 1; line-height: 1.4; white-space: pre-wrap; word-break: break-word; max-height: 60px; overflow: hidden; }
+.sticky-preview.empty { opacity: 0.4; font-style: italic; }
 
-@keyframes fade-in {
-  from { opacity: 0; transform: translateY(5px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
+@keyframes fade-in { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
 
-.file-ico {
-  width: 38px; height: 38px; border-radius: 9px;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 17px; flex-shrink: 0;
-}
+.file-ico { width: 38px; height: 38px; border-radius: 9px; display: flex; align-items: center; justify-content: center; font-size: 17px; flex-shrink: 0; }
 .file-ico.xlsx { background: #e8f5e0; }
 .file-ico.csv  { background: #e0f5ee; }
 .file-ico.txt, .file-ico.md { background: #fff3e0; }
 .file-ico.pdf  { background: #fce8e8; }
 .file-ico.docx, .file-ico.doc { background: #e8eef8; }
+.file-ico.sticky { background: #fef08a; }
 .file-ico.other { background: var(--bg); }
 
 .file-info { flex: 1; min-width: 0; }
@@ -184,94 +109,94 @@ header h1 span { color: var(--accent); }
 .file-meta { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
 
 .file-actions { display: flex; align-items: center; gap: 6px; }
-.tag {
-  font-size: 10px; padding: 2px 8px; border-radius: 20px; font-weight: 500;
-}
+.tag { font-size: 10px; padding: 2px 8px; border-radius: 20px; font-weight: 500; }
 .tag.xlsx { background: #e8f5e0; color: #3b6d11; }
 .tag.csv  { background: #e0f5ee; color: #0f6e56; }
 .tag.txt, .tag.md { background: #fff3e0; color: #854f0b; }
 .tag.pdf  { background: #fce8e8; color: #a32d2d; }
 .tag.docx, .tag.doc { background: #e8eef8; color: #185fa5; }
+.tag.sticky { background: #fef08a; color: #7a6500; border: 1px solid #d4b800; }
 .tag.other { background: var(--bg); color: var(--text-muted); }
 
-.icon-btn {
-  width: 28px; height: 28px; border-radius: 7px;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 12px; cursor: pointer; border: 1px solid var(--border);
-  background: var(--bg); color: var(--text-muted); opacity: 0;
-  transition: opacity 0.15s, background 0.15s;
-}
+.icon-btn { width: 28px; height: 28px; border-radius: 7px; display: flex; align-items: center; justify-content: center; font-size: 12px; cursor: pointer; border: 1px solid var(--border); background: var(--bg); color: var(--text-muted); opacity: 0; transition: opacity 0.15s, background 0.15s; text-decoration: none; }
 .file-card:hover .icon-btn { opacity: 1; }
 .icon-btn:hover { background: var(--surface); color: var(--text); }
 .icon-btn.del:hover { background: #fce8e8; color: #a32d2d; border-color: #f09595; }
+.icon-btn.float-btn:hover { background: #fef08a; color: #7a6500; border-color: #d4b800; }
 
-/* Empty state */
 .empty { text-align: center; padding: 2.5rem 1rem; color: var(--text-muted); font-size: 13px; }
 
 /* Toast */
-.toast {
-  position: fixed; bottom: 1.5rem; right: 1.5rem;
-  background: var(--text); color: #fff;
-  padding: 10px 16px; border-radius: var(--radius-sm);
-  font-size: 13px; font-weight: 500;
-  transform: translateY(60px); opacity: 0;
-  transition: all 0.25s; pointer-events: none; z-index: 999;
-}
+.toast { position: fixed; bottom: 1.5rem; right: 1.5rem; background: var(--text); color: #fff; padding: 10px 16px; border-radius: var(--radius-sm); font-size: 13px; font-weight: 500; transform: translateY(60px); opacity: 0; transition: all 0.25s; pointer-events: none; z-index: 998; }
 .toast.show { transform: translateY(0); opacity: 1; }
 .toast.error { background: #a32d2d; }
 
-/* Loading dots */
-.dots span {
-  display: inline-block; width: 5px; height: 5px; border-radius: 50%;
-  background: var(--accent); margin: 0 2px;
-  animation: pulse 1.2s ease-in-out infinite;
-}
+.dots span { display: inline-block; width: 5px; height: 5px; border-radius: 50%; background: var(--accent); margin: 0 2px; animation: pulse 1.2s ease-in-out infinite; }
 .dots span:nth-child(2) { animation-delay: 0.2s; }
 .dots span:nth-child(3) { animation-delay: 0.4s; }
-@keyframes pulse {
-  0%,80%,100% { transform: scale(0.6); opacity: 0.4; }
-  40%          { transform: scale(1);   opacity: 1;   }
+@keyframes pulse { 0%,80%,100% { transform: scale(0.6); opacity: 0.4; } 40% { transform: scale(1); opacity: 1; } }
+
+/* ===== STICKIES FLOTANTES ===== */
+.sticky-layer { position: fixed; inset: 0; pointer-events: none; z-index: 200; }
+
+.sticky {
+  position: absolute; width: 224px; min-height: 150px;
+  border-radius: 4px 12px 4px 4px;
+  box-shadow: 4px 5px 16px rgba(0,0,0,0.18), 0 1px 0 rgba(255,255,255,0.6) inset;
+  pointer-events: all; display: flex; flex-direction: column;
+  animation: sticky-pop 0.18s cubic-bezier(.34,1.56,.64,1);
 }
+@keyframes sticky-pop { from { transform: scale(0.8) rotate(-2deg); opacity: 0; } to { transform: scale(1) rotate(0); opacity: 1; } }
+
+.sticky-handle { height: 30px; border-radius: 4px 12px 0 0; background: rgba(0,0,0,0.08); cursor: grab; display: flex; align-items: center; justify-content: space-between; padding: 0 10px; flex-shrink: 0; user-select: none; }
+.sticky-handle:active { cursor: grabbing; }
+.sticky-dots { font-size: 14px; color: rgba(0,0,0,0.25); letter-spacing: 3px; margin-top: -2px; }
+.sticky-close { width: 16px; height: 16px; border-radius: 50%; background: rgba(0,0,0,0.15); border: none; cursor: pointer; font-size: 9px; color: rgba(0,0,0,0.4); display: flex; align-items: center; justify-content: center; transition: background 0.15s; line-height: 1; }
+.sticky-close:hover { background: rgba(180,0,0,0.35); color: #900; }
+
+.sticky textarea { flex: 1; border: none; outline: none; background: transparent; resize: none; font-family: 'Caveat', cursive; font-size: 17px; color: #2a2000; padding: 10px 12px; line-height: 1.55; min-height: 110px; }
+
+.sticky-footer { display: flex; gap: 6px; padding: 7px 10px; border-top: 1px solid rgba(0,0,0,0.07); flex-shrink: 0; align-items: center; }
+.color-dot { width: 14px; height: 14px; border-radius: 50%; cursor: pointer; border: 1.5px solid rgba(0,0,0,0.08); transition: transform 0.1s, border-color 0.1s; }
+.color-dot:hover { transform: scale(1.25); }
+.color-dot.active { border-color: rgba(0,0,0,0.45); transform: scale(1.1); }
 </style>
 </head>
 <body>
-<div class="app">
 
+<div class="app">
   <header>
     <div class="logo">☁️</div>
     <h1>cloud<span>y</span></h1>
+    <button class="new-sticky-btn" id="new-sticky-btn">📝 Nueva nota</button>
     <span class="file-count" id="file-count">cargando...</span>
   </header>
 
-  <!-- Search -->
   <div class="search-wrap">
     <div class="search-box">
       <span class="search-icon">🔍</span>
-      <input type="text" id="search-input" placeholder="Buscá en tus archivos… ej: presupuesto Q3, reunión viernes" />
+      <input type="text" id="search-input" placeholder="Buscá en tus archivos… ej: presupuesto Q3" />
       <button class="ask-btn" id="ask-btn">Preguntar</button>
     </div>
   </div>
 
-  <!-- AI answer -->
   <div class="ai-bubble" id="ai-bubble">
     <div class="ai-label">✦ Respuesta IA</div>
     <div class="ai-answer" id="ai-answer"></div>
     <div class="ai-sources" id="ai-sources"></div>
   </div>
 
-  <!-- Stats -->
   <div class="stats" id="stats" style="display:none">
     <div class="stat"><div class="stat-n" id="s-xlsx">0</div><div class="stat-l">Excels</div></div>
     <div class="stat"><div class="stat-n" id="s-docs">0</div><div class="stat-l">Notas / Docs</div></div>
     <div class="stat"><div class="stat-n" id="s-other">0</div><div class="stat-l">Otros</div></div>
   </div>
 
-  <!-- Upload -->
   <div class="upload-zone" id="upload-zone">
     <input type="file" id="file-input" multiple accept=".xlsx,.xls,.csv,.txt,.md,.pdf,.docx,.doc" />
     <div class="upload-icon">☁️</div>
     <div class="upload-title">Arrastrá archivos o hacé click para subir</div>
-    <div class="upload-sub">Excel · CSV · TXT · Markdown · PDF · Word — máx. 20 MB por archivo</div>
+    <div class="upload-sub">Excel · CSV · TXT · Markdown · PDF · Word — máx. 20 MB</div>
   </div>
 
   <div class="upload-progress" id="upload-progress">
@@ -279,83 +204,90 @@ header h1 span { color: var(--accent); }
     <div class="prog-bar-wrap"><div class="prog-bar" id="prog-bar"></div></div>
   </div>
 
-  <!-- File list -->
-  <div class="section-label" id="files-label" style="display:none">Tus archivos</div>
+  <div class="section-label" id="files-label" style="display:none">Tus archivos y notas</div>
   <div class="file-list" id="file-list"></div>
-
 </div>
 
+<div class="sticky-layer" id="sticky-layer"></div>
 <div class="toast" id="toast"></div>
 
 <script>
-const API = '';  // same origin — nginx proxies /api to Node
-
+const API = '';
 let allFiles = [];
 let highlightedFiles = new Set();
+let stickies = [];
+let stickyIdCounter = 0;
+const COLORS = ['#fef08a','#bbf7d0','#bfdbfe','#fecaca','#e9d5ff'];
+const BORDER_COLORS = {'#fef08a':'#c8a800','#bbf7d0':'#16a34a','#bfdbfe':'#2563eb','#fecaca':'#dc2626','#e9d5ff':'#9333ea'};
 
-// Helpers
-function ext(name) { return (name.match(/\.(\w+)$/) || ['','other'])[1].toLowerCase(); }
+function saveStickies() { localStorage.setItem('cloudy_stickies', JSON.stringify(stickies)); }
+function loadStickiesStorage() { try { return JSON.parse(localStorage.getItem('cloudy_stickies')||'[]'); } catch { return []; } }
+
+function ext(name) { return (name.match(/\.(\w+)$/)||['','other'])[1].toLowerCase(); }
 function cat(e) {
-  if (['xlsx','xls'].includes(e)) return 'xlsx';
-  if (e === 'csv') return 'csv';
-  if (['txt','md'].includes(e)) return 'txt';
-  if (e === 'pdf') return 'pdf';
-  if (['docx','doc'].includes(e)) return 'docx';
+  if(['xlsx','xls'].includes(e)) return 'xlsx';
+  if(e==='csv') return 'csv';
+  if(['txt','md'].includes(e)) return 'txt';
+  if(e==='pdf') return 'pdf';
+  if(['docx','doc'].includes(e)) return 'docx';
   return 'other';
 }
-function icon(e) {
-  const m = {xlsx:'📊',xls:'📊',csv:'📋',txt:'📝',md:'📝',pdf:'📄',docx:'📃',doc:'📃'};
-  return m[e] || '📁';
-}
-function fmtSize(b) {
-  if (b < 1024) return b + ' B';
-  if (b < 1048576) return Math.round(b/1024) + ' KB';
-  return (b/1048576).toFixed(1) + ' MB';
-}
-function fmtDate(d) {
-  return new Date(d).toLocaleDateString('es-AR', {day:'2-digit',month:'short',year:'numeric'});
-}
-function toast(msg, err=false) {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.className = 'toast show' + (err?' error':'');
-  setTimeout(() => t.className = 'toast', 2800);
+function icon(e) { return {xlsx:'📊',xls:'📊',csv:'📋',txt:'📝',md:'📝',pdf:'📄',docx:'📃',doc:'📃'}[e]||'📁'; }
+function fmtSize(b) { if(b<1024)return b+' B'; if(b<1048576)return Math.round(b/1024)+' KB'; return (b/1048576).toFixed(1)+' MB'; }
+function fmtDate(d) { return new Date(d).toLocaleDateString('es-AR',{day:'2-digit',month:'short',year:'numeric'}); }
+function toast(msg,err=false) {
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.className='toast show'+(err?' error':'');
+  setTimeout(()=>t.className='toast',2800);
 }
 
-// Load file list from server
 async function loadFiles() {
-  try {
-    const r = await fetch(API + '/api/files');
-    allFiles = await r.json();
-    renderFiles();
-    updateStats();
-  } catch { toast('No se pudo conectar al servidor', true); }
+  try { const r=await fetch(API+'/api/files'); allFiles=await r.json(); renderAll(); updateStats(); }
+  catch { toast('No se pudo conectar al servidor',true); }
 }
 
 function updateStats() {
-  const n = allFiles.length;
-  document.getElementById('file-count').textContent = n + (n===1?' archivo':' archivos');
-  document.getElementById('stats').style.display = n ? 'flex' : 'none';
-  document.getElementById('files-label').style.display = n ? 'block' : 'none';
-  document.getElementById('s-xlsx').textContent = allFiles.filter(f=>['xlsx','xls','csv'].includes(ext(f.name))).length;
-  document.getElementById('s-docs').textContent = allFiles.filter(f=>['txt','md','docx','doc'].includes(ext(f.name))).length;
-  document.getElementById('s-other').textContent = allFiles.filter(f=>!['xlsx','xls','csv','txt','md','docx','doc'].includes(ext(f.name))).length;
+  const n=allFiles.length, sn=stickies.length;
+  document.getElementById('file-count').textContent=(n+sn)+' items';
+  document.getElementById('stats').style.display=n?'flex':'none';
+  document.getElementById('files-label').style.display=(n||sn)?'block':'none';
+  document.getElementById('s-xlsx').textContent=allFiles.filter(f=>['xlsx','xls','csv'].includes(ext(f.name))).length;
+  document.getElementById('s-docs').textContent=allFiles.filter(f=>['txt','md','docx','doc'].includes(ext(f.name))).length;
+  document.getElementById('s-other').textContent=allFiles.filter(f=>!['xlsx','xls','csv','txt','md','docx','doc'].includes(ext(f.name))).length;
 }
 
-function renderFiles() {
-  const list = document.getElementById('file-list');
-  if (allFiles.length === 0) {
-    list.innerHTML = '<div class="empty">Todavía no hay archivos. ¡Subí el primero!</div>';
-    return;
+function renderAll() {
+  const list=document.getElementById('file-list');
+  if(!allFiles.length && !stickies.length) {
+    list.innerHTML='<div class="empty">Todavía no hay archivos ni notas.</div>'; return;
   }
-  list.innerHTML = '';
-  allFiles.forEach(f => {
-    const e = ext(f.name);
-    const c = cat(e);
-    const hl = highlightedFiles.size && highlightedFiles.has(f.name);
-    const card = document.createElement('div');
-    card.className = 'file-card' + (hl ? ' highlighted' : '');
-    card.innerHTML = `
+  list.innerHTML='';
+
+  // Stickies en la lista
+  stickies.forEach(s=>{
+    const card=document.createElement('div');
+    card.className='file-card sticky-card';
+    card.style.background=s.color+'bb';
+    card.style.borderColor=BORDER_COLORS[s.color]||'#ccc';
+    const preview=s.text||'';
+    card.innerHTML=`
+      <div class="file-ico sticky">📝</div>
+      <div class="sticky-preview${preview?'':' empty'}">${preview||'Nota vacía...'}</div>
+      <div class="file-actions">
+        <span class="tag sticky">NOTA</span>
+        <button class="icon-btn float-btn" data-sid="${s.id}" title="Abrir flotante">↗</button>
+        <button class="icon-btn del" data-sid="${s.id}" title="Eliminar">✕</button>
+      </div>`;
+    list.appendChild(card);
+  });
+
+  // Archivos
+  const toShow=highlightedFiles.size?allFiles.filter(f=>highlightedFiles.has(f.name)):allFiles;
+  toShow.forEach(f=>{
+    const e=ext(f.name),c=cat(e),hl=highlightedFiles.has(f.name);
+    const card=document.createElement('div');
+    card.className='file-card'+(hl?' highlighted':'');
+    card.innerHTML=`
       <div class="file-ico ${c}">${icon(e)}</div>
       <div class="file-info">
         <div class="file-name">${f.name}</div>
@@ -363,98 +295,165 @@ function renderFiles() {
       </div>
       <div class="file-actions">
         <span class="tag ${c}">${e.toUpperCase()}</span>
-        <a href="/api/files/${encodeURIComponent(f.name)}/download" title="Descargar" class="icon-btn">⬇</a>
+        <a href="/api/files/${encodeURIComponent(f.name)}/download" download="${f.name}" class="icon-btn" title="Descargar / Abrir">⬇</a>
         <button class="icon-btn del" data-name="${f.name}" title="Eliminar">✕</button>
       </div>`;
     list.appendChild(card);
   });
-  list.querySelectorAll('.del').forEach(btn => {
-    btn.addEventListener('click', () => deleteFile(btn.dataset.name));
-  });
+
+  list.querySelectorAll('.del[data-name]').forEach(b=>b.addEventListener('click',()=>deleteFile(b.dataset.name)));
+  list.querySelectorAll('.del[data-sid]').forEach(b=>b.addEventListener('click',()=>deleteSticky(parseInt(b.dataset.sid))));
+  list.querySelectorAll('.float-btn').forEach(b=>b.addEventListener('click',()=>showStickyFloat(parseInt(b.dataset.sid))));
 }
 
-// Upload
 async function uploadFiles(fileList) {
-  if (!fileList.length) return;
-  const prog = document.getElementById('upload-progress');
-  const bar = document.getElementById('prog-bar');
-  prog.className = 'upload-progress visible';
-  bar.style.width = '20%';
-
-  const fd = new FormData();
-  Array.from(fileList).forEach(f => fd.append('files', f));
-
+  if(!fileList.length) return;
+  const prog=document.getElementById('upload-progress'),bar=document.getElementById('prog-bar');
+  prog.className='upload-progress visible'; bar.style.width='20%';
+  const fd=new FormData();
+  Array.from(fileList).forEach(f=>fd.append('files',f));
   try {
-    bar.style.width = '60%';
-    const r = await fetch(API + '/api/upload', { method: 'POST', body: fd });
-    bar.style.width = '100%';
-    const data = await r.json();
-    if (data.error) { toast(data.error, true); }
-    else { toast(`${data.length} archivo${data.length>1?'s':''} subido${data.length>1?'s':''}!`); }
+    bar.style.width='60%';
+    const r=await fetch(API+'/api/upload',{method:'POST',body:fd});
+    bar.style.width='100%';
+    const data=await r.json();
+    if(data.error) toast(data.error,true);
+    else toast(`${data.length} archivo${data.length>1?'s':''} subido${data.length>1?'s':''}!`);
     await loadFiles();
-  } catch { toast('Error al subir archivos', true); }
-  finally { setTimeout(() => { prog.className = 'upload-progress'; bar.style.width = '0%'; }, 700); }
+  } catch { toast('Error al subir',true); }
+  finally { setTimeout(()=>{prog.className='upload-progress';bar.style.width='0%';},700); }
 }
 
 async function deleteFile(name) {
-  if (!confirm(`¿Eliminar "${name}"?`)) return;
-  try {
-    await fetch(API + '/api/files/' + encodeURIComponent(name), { method: 'DELETE' });
-    toast(`"${name}" eliminado`);
-    await loadFiles();
-  } catch { toast('Error al eliminar', true); }
+  if(!confirm(`¿Eliminar "${name}"?`)) return;
+  try { await fetch(API+'/api/files/'+encodeURIComponent(name),{method:'DELETE'}); toast('"'+name+'" eliminado'); await loadFiles(); }
+  catch { toast('Error al eliminar',true); }
 }
 
-// Search / AI
 async function doSearch() {
-  const q = document.getElementById('search-input').value.trim();
-  if (!q) return;
-  const bubble = document.getElementById('ai-bubble');
-  const answerEl = document.getElementById('ai-answer');
-  const sourcesEl = document.getElementById('ai-sources');
-  bubble.className = 'ai-bubble visible';
-  answerEl.innerHTML = '<div class="dots"><span></span><span></span><span></span></div>';
-  sourcesEl.innerHTML = '';
-  document.getElementById('ask-btn').disabled = true;
-
+  const q=document.getElementById('search-input').value.trim();
+  if(!q) return;
+  const bubble=document.getElementById('ai-bubble'),answerEl=document.getElementById('ai-answer'),sourcesEl=document.getElementById('ai-sources');
+  bubble.className='ai-bubble visible';
+  answerEl.innerHTML='<div class="dots"><span></span><span></span><span></span></div>';
+  sourcesEl.innerHTML='';
+  document.getElementById('ask-btn').disabled=true;
   try {
-    const r = await fetch(API + '/api/search', {
-      method: 'POST',
-      headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({ query: q })
-    });
-    const data = await r.json();
-    if (data.error) { answerEl.textContent = 'Error: ' + data.error; return; }
+    const r=await fetch(API+'/api/search',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({query:q})});
+    const data=await r.json();
+    if(data.error){answerEl.textContent='Error: '+data.error;return;}
+    answerEl.textContent=data.answer;
+    highlightedFiles=new Set(data.sources||[]);
+    sourcesEl.innerHTML='';
+    data.sources?.forEach(s=>{ const t=document.createElement('span'); t.className='ai-src'; t.textContent='📎 '+s; sourcesEl.appendChild(t); });
+    renderAll();
+  } catch { answerEl.textContent='Error de conexión.'; }
+  finally { document.getElementById('ask-btn').disabled=false; }
+}
 
-    answerEl.textContent = data.answer;
-    sourcesEl.innerHTML = '';
-    highlightedFiles = new Set(data.sources || []);
-    data.sources?.forEach(s => {
-      const tag = document.createElement('span');
-      tag.className = 'ai-src';
-      tag.textContent = '📎 ' + s;
-      sourcesEl.appendChild(tag);
+// ── Stickies ──
+function getTopZ() { let z=200; document.querySelectorAll('.sticky').forEach(el=>{const zz=parseInt(el.style.zIndex||200);if(zz>z)z=zz;}); return z; }
+
+function createSticky(opts={}) {
+  stickyIdCounter++;
+  const s={ id:stickyIdCounter, text:opts.text||'', color:opts.color||COLORS[0], x:opts.x??Math.round(100+Math.random()*160), y:opts.y??Math.round(100+Math.random()*120) };
+  stickies.push(s); saveStickies(); renderAll(); updateStats();
+  return s;
+}
+
+function deleteSticky(id) {
+  stickies=stickies.filter(s=>s.id!==id);
+  const el=document.querySelector(`.sticky[data-sid="${id}"]`);
+  if(el) el.remove();
+  saveStickies(); renderAll(); updateStats();
+}
+
+function showStickyFloat(id) {
+  const existing=document.querySelector(`.sticky[data-sid="${id}"]`);
+  if(existing){ existing.style.zIndex=getTopZ()+1; existing.querySelector('textarea').focus(); return; }
+  const s=stickies.find(s=>s.id===id);
+  if(s) spawnStickyEl(s);
+}
+
+function spawnStickyEl(s) {
+  const layer=document.getElementById('sticky-layer');
+  const el=document.createElement('div');
+  el.className='sticky'; el.dataset.sid=s.id;
+  el.style.cssText=`left:${s.x}px;top:${s.y}px;background:${s.color};z-index:${getTopZ()+1};`;
+
+  el.innerHTML=`
+    <div class="sticky-handle">
+      <span class="sticky-dots">· · ·</span>
+      <button class="sticky-close">✕</button>
+    </div>
+    <textarea placeholder="Escribí tu nota...">${s.text}</textarea>
+    <div class="sticky-footer">
+      ${COLORS.map(c=>`<div class="color-dot${s.color===c?' active':''}" style="background:${c}" data-color="${c}"></div>`).join('')}
+    </div>`;
+
+  makeDraggable(el, el.querySelector('.sticky-handle'), s);
+
+  el.querySelector('.sticky-close').addEventListener('click',()=>{
+    el.style.opacity='0'; el.style.transform='scale(0.85)'; el.style.transition='all 0.15s';
+    setTimeout(()=>el.remove(),150);
+  });
+
+  const ta=el.querySelector('textarea');
+  ta.addEventListener('input',()=>{ s.text=ta.value; saveStickies(); renderAll(); });
+
+  el.querySelectorAll('.color-dot').forEach(dot=>{
+    dot.addEventListener('click',()=>{
+      const c=dot.dataset.color;
+      s.color=c; el.style.background=c;
+      el.querySelectorAll('.color-dot').forEach(d=>d.classList.toggle('active',d.dataset.color===c));
+      saveStickies(); renderAll();
     });
-    renderFiles();
-  } catch (e) {
-    answerEl.textContent = 'Error de conexión con el servidor.';
-  } finally {
-    document.getElementById('ask-btn').disabled = false;
+  });
+
+  el.addEventListener('mousedown',()=>el.style.zIndex=getTopZ()+1);
+  layer.appendChild(el);
+  ta.focus();
+}
+
+function makeDraggable(el, handle, s) {
+  let ox,oy,sx,sy,dragging=false;
+  handle.addEventListener('mousedown',e=>{
+    if(e.target.classList.contains('sticky-close')) return;
+    dragging=true; ox=e.clientX; oy=e.clientY;
+    sx=parseInt(el.style.left)||s.x; sy=parseInt(el.style.top)||s.y;
+    el.style.zIndex=getTopZ()+1; e.preventDefault();
+  });
+  document.addEventListener('mousemove',e=>{ if(!dragging)return; el.style.left=(sx+e.clientX-ox)+'px'; el.style.top=(sy+e.clientY-oy)+'px'; });
+  document.addEventListener('mouseup',()=>{ if(!dragging)return; dragging=false; s.x=parseInt(el.style.left); s.y=parseInt(el.style.top); saveStickies(); });
+}
+
+function newSticky() {
+  const s=createSticky({ x:Math.round(window.innerWidth/2-112+Math.random()*60-30), y:Math.round(130+Math.random()*60) });
+  spawnStickyEl(s);
+}
+
+// Init
+function init() {
+  const saved=loadStickiesStorage();
+  if(saved.length) {
+    stickyIdCounter=Math.max(...saved.map(s=>s.id||0));
+    stickies=saved;
+    saved.forEach(s=>spawnStickyEl(s));
   }
 }
 
-// Events
-document.getElementById('search-input').addEventListener('keydown', e => { if (e.key==='Enter') doSearch(); });
-document.getElementById('ask-btn').addEventListener('click', doSearch);
+document.getElementById('search-input').addEventListener('keydown',e=>{if(e.key==='Enter')doSearch();});
+document.getElementById('ask-btn').addEventListener('click',doSearch);
+document.getElementById('new-sticky-btn').addEventListener('click',newSticky);
 
-const zone = document.getElementById('upload-zone');
-const fi = document.getElementById('file-input');
-zone.addEventListener('click', () => fi.click());
-fi.addEventListener('change', e => { uploadFiles(e.target.files); fi.value=''; });
-zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('drag-over'); });
-zone.addEventListener('dragleave', () => zone.classList.remove('drag-over'));
-zone.addEventListener('drop', e => { e.preventDefault(); zone.classList.remove('drag-over'); uploadFiles(e.dataTransfer.files); });
+const zone=document.getElementById('upload-zone'),fi=document.getElementById('file-input');
+zone.addEventListener('click',()=>fi.click());
+fi.addEventListener('change',e=>{uploadFiles(e.target.files);fi.value='';});
+zone.addEventListener('dragover',e=>{e.preventDefault();zone.classList.add('drag-over');});
+zone.addEventListener('dragleave',()=>zone.classList.remove('drag-over'));
+zone.addEventListener('drop',e=>{e.preventDefault();zone.classList.remove('drag-over');uploadFiles(e.dataTransfer.files);});
 
+init();
 loadFiles();
 </script>
 </body>
