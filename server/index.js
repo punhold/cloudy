@@ -8,10 +8,15 @@ const fetch = require('node-fetch');
 const app = express();
 const PORT = process.env.PORT || 3001;
 const UPLOADS_DIR = path.join(__dirname, '..', 'uploads');
+const NOTAS_FILE = path.join(__dirname, '..', 'notas.json');
 const OLLAMA_URL = process.env.OLLAMA_URL || 'http://localhost:11434';
 const OLLAMA_MODEL = process.env.OLLAMA_MODEL || 'deepseek-r1:7b';
 
 if (!fs.existsSync(UPLOADS_DIR)) fs.mkdirSync(UPLOADS_DIR, { recursive: true });
+if (!fs.existsSync(NOTAS_FILE)) fs.writeFileSync(NOTAS_FILE, '[]');
+
+function readNotas() { try { return JSON.parse(fs.readFileSync(NOTAS_FILE, 'utf8')); } catch { return []; } }
+function writeNotas(notas) { fs.writeFileSync(NOTAS_FILE, JSON.stringify(notas, null, 2)); }
 
 app.use(cors());
 app.use(express.json());
@@ -75,6 +80,29 @@ app.get('/api/files/:name/download', (req, res) => {
   res.download(filePath);
 });
 
+// GET /api/notas
+app.get('/api/notas', (req, res) => res.json(readNotas()));
+
+// POST /api/notas — create or update a nota
+app.post('/api/notas', (req, res) => {
+  const { id, text, color, x, y } = req.body;
+  if (!id) return res.status(400).json({ error: 'Missing id' });
+  const notas = readNotas();
+  const idx = notas.findIndex(n => n.id === id);
+  if (idx > -1) notas[idx] = { ...notas[idx], text, color, x, y };
+  else notas.push({ id, text: text||'', color: color||'#fef08a', x: x||220, y: y||120 });
+  writeNotas(notas);
+  res.json({ ok: true });
+});
+
+// DELETE /api/notas/:id
+app.delete('/api/notas/:id', (req, res) => {
+  const id = parseInt(req.params.id);
+  const notas = readNotas().filter(n => n.id !== id);
+  writeNotas(notas);
+  res.json({ ok: true });
+});
+
 // GET /api/status — check Ollama connection and loaded model
 app.get('/api/status', async (req, res) => {
   try {
@@ -105,19 +133,25 @@ app.post('/api/search', async (req, res) => {
     return { name, ext: ext.replace('.', ''), content };
   });
 
+  // Include notes
+  const notas = readNotas().filter(n => n.text && n.text.trim());
+  const notasSummary = notas.length
+    ? '\n\n--- NOTAS DEL USUARIO ---\n' + notas.map((n,i) => `Nota ${i+1}: ${n.text.slice(0,500)}`).join('\n')
+    : '';
+
   const filesSummary = fileContents.map(f =>
     `Archivo: ${f.name} (${f.ext.toUpperCase()})` +
     (f.content ? `\nContenido: ${f.content}` : '\n[archivo binario]')
   ).join('\n\n---\n\n');
 
-  const prompt = `Sos un asistente que ayuda a encontrar información en archivos personales de trabajo.
+  const prompt = `Sos un asistente que ayuda a encontrar información en archivos y notas personales de trabajo.
 
 El usuario tiene estos archivos:
-${filesSummary}
+${filesSummary}${notasSummary}
 
 Pregunta: "${query}"
 
-Respondé en español, de forma concisa (2-4 oraciones). Si encontrás info relevante indicá en qué archivo está.
+Respondé en español, de forma concisa (2-4 oraciones). Si encontrás info relevante indicá en qué archivo o nota está.
 Finalizá con una línea que empiece con "ARCHIVOS:" y liste los nombres de archivos relevantes separados por coma (o "ninguno").
 No agregues explicaciones extra después de la línea ARCHIVOS.`;
 

@@ -296,8 +296,8 @@ const PIN_COLORS = {'#fef08a':'#c8a800','#bbf7d0':'#16a34a','#bfdbfe':'#2563eb',
 // Per-note rotation seeds so they stay consistent
 const ROTATIONS = [-1.8, 1.2, -0.6, 1.8, -1.2, 0.8, -1.5, 1.0];
 
-function saveStickies() { localStorage.setItem('cloudy_stickies', JSON.stringify(stickies)); }
-function loadStickiesStorage() { try { return JSON.parse(localStorage.getItem('cloudy_stickies')||'[]'); } catch { return []; } }
+function saveSticky(s) { fetch(API+'/api/notas',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(s)}); }
+async function loadStickiesServer() { try { const r=await fetch(API+'/api/notas'); return await r.json(); } catch { return []; } }
 
 function ext(name) { return (name.match(/\.(\w+)$/)||['','other'])[1].toLowerCase(); }
 function cat(e) {
@@ -445,7 +445,7 @@ function getTopZ() { let z=200; document.querySelectorAll('.sticky-float').forEa
 function createSticky(opts={}) {
   stickyIdCounter++;
   const s={ id:stickyIdCounter, text:opts.text||'', color:opts.color||COLORS[0], x:opts.x??220, y:opts.y??120 };
-  stickies.push(s); saveStickies();
+  stickies.push(s); saveSticky(s);
   return s;
 }
 
@@ -453,7 +453,8 @@ function deleteSticky(id) {
   stickies=stickies.filter(s=>s.id!==id);
   const el=document.querySelector(`.sticky-float[data-sid="${id}"]`);
   if(el) el.remove();
-  saveStickies(); renderBoard(); updateStats();
+  fetch(API+'/api/notas/'+id,{method:'DELETE'});
+  renderBoard(); updateStats();
 }
 
 function showStickyFloat(id) {
@@ -485,13 +486,13 @@ function spawnStickyEl(s) {
     setTimeout(()=>el.remove(),150);
   });
   const ta=el.querySelector('textarea');
-  ta.addEventListener('input',()=>{ s.text=ta.value; saveStickies(); renderBoard(); });
+  ta.addEventListener('input',()=>{ s.text=ta.value; saveSticky(s); renderBoard(); });
   el.querySelectorAll('.color-dot').forEach(dot=>{
     dot.addEventListener('click',()=>{
       const c=dot.dataset.color;
       s.color=c; el.style.background=c;
       el.querySelectorAll('.color-dot').forEach(d=>d.classList.toggle('active',d.dataset.color===c));
-      saveStickies(); renderBoard();
+      saveSticky(s); renderBoard();
     });
   });
   el.addEventListener('mousedown',()=>el.style.zIndex=getTopZ()+1);
@@ -508,7 +509,7 @@ function makeDraggable(el, handle, s) {
     el.style.zIndex=getTopZ()+1; e.preventDefault();
   });
   document.addEventListener('mousemove',e=>{ if(!dragging)return; el.style.left=(sx+e.clientX-ox)+'px'; el.style.top=(sy+e.clientY-oy)+'px'; });
-  document.addEventListener('mouseup',()=>{ if(!dragging)return; dragging=false; s.x=parseInt(el.style.left); s.y=parseInt(el.style.top); saveStickies(); });
+  document.addEventListener('mouseup',()=>{ if(!dragging)return; dragging=false; s.x=parseInt(el.style.left); s.y=parseInt(el.style.top); saveSticky(s); });
 }
 
 function newSticky() {
@@ -521,13 +522,10 @@ function newSticky() {
   spawnStickyEl(s);
 }
 
-function init() {
-  const saved=loadStickiesStorage();
-  if(saved.length) {
-    stickyIdCounter=Math.max(...saved.map(s=>s.id||0));
-    stickies=saved;
-  }
-  renderBoard();
+async function init() {
+  stickies = await loadStickiesServer();
+  if(stickies.length) stickyIdCounter=Math.max(...stickies.map(s=>s.id||0));
+  renderBoard(); updateStats();
 }
 
 document.getElementById('search-input').addEventListener('keydown',e=>{if(e.key==='Enter')doSearch();});
