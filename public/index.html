@@ -47,6 +47,8 @@ header h1 span { color: var(--accent); }
 .ask-btn { background: var(--accent); color: #fff; border: none; border-radius: var(--radius-sm); padding: 7px 14px; font-family: 'Sora', sans-serif; font-size: 13px; font-weight: 500; cursor: pointer; transition: background 0.2s; white-space: nowrap; }
 .ask-btn:hover { background: #2e7aad; }
 .ask-btn:disabled { background: var(--text-muted); cursor: not-allowed; }
+.search-btn { background: var(--surface); color: var(--accent); border: 1.5px solid var(--accent); border-radius: var(--radius-sm); padding: 7px 14px; font-family: 'Sora', sans-serif; font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.2s; white-space: nowrap; }
+.search-btn:hover { background: var(--accent-light); }
 
 /* AI bubble */
 .ai-bubble { background: var(--surface); border: 1px solid var(--border-strong); border-left: 3px solid var(--accent); border-radius: var(--radius); padding: 14px 16px; margin-bottom: 1.25rem; display: none; animation: fade-in 0.2s ease; }
@@ -96,6 +98,8 @@ header h1 span { color: var(--accent); }
 .board-note:nth-child(even) { transform: rotate(1deg); }
 .board-note:nth-child(3n)   { transform: rotate(-0.5deg); }
 .board-note:hover { transform: rotate(0deg) scale(1.04) translateY(-3px) !important; box-shadow: 5px 8px 20px rgba(0,0,0,0.3); z-index: 2; }
+.board-note.match { outline: 3px solid #3a8fc4; outline-offset: 2px; }
+.board-note.no-match { opacity: 0.25; filter: grayscale(0.5); }
 
 @keyframes note-drop { from { transform: rotate(-3deg) translateY(-12px); opacity: 0; } to { } }
 
@@ -235,8 +239,9 @@ header h1 span { color: var(--accent); }
   <div class="search-wrap">
     <div class="search-box">
       <span class="search-icon">🔍</span>
-      <input type="text" id="search-input" placeholder="Buscá en tus archivos… ej: presupuesto Q3" />
-      <button class="ask-btn" id="ask-btn">Preguntar</button>
+      <input type="text" id="search-input" placeholder="Buscá en notas y archivos…" />
+      <button class="search-btn" id="search-btn">Buscar</button>
+      <button class="ask-btn" id="ask-btn">✦ IA</button>
     </div>
   </div>
 
@@ -418,6 +423,36 @@ async function deleteFile(name) {
   catch { toast('Error al eliminar',true); }
 }
 
+// ── Búsqueda en tiempo real ──
+let searchQuery = '';
+
+function doLocalSearch(q) {
+  searchQuery = q.toLowerCase().trim();
+  // Filter board notes
+  const notes = document.querySelectorAll('.board-note');
+  notes.forEach(note => {
+    const text = note.querySelector('.board-note-text')?.textContent?.toLowerCase() || '';
+    if (!searchQuery) { note.classList.remove('match','no-match'); }
+    else if (text.includes(searchQuery)) { note.classList.add('match'); note.classList.remove('no-match'); }
+    else { note.classList.add('no-match'); note.classList.remove('match'); }
+  });
+  // Filter file cards
+  highlightedFiles = new Set();
+  if (searchQuery) {
+    allFiles.forEach(f => { if (f.name.toLowerCase().includes(searchQuery)) highlightedFiles.add(f.name); });
+  }
+  renderFiles();
+  // Hide AI bubble when searching locally
+  if (searchQuery) document.getElementById('ai-bubble').className='ai-bubble';
+}
+
+function clearSearch() {
+  searchQuery = '';
+  highlightedFiles = new Set();
+  document.querySelectorAll('.board-note').forEach(n=>n.classList.remove('match','no-match'));
+  renderFiles();
+}
+
 async function doSearch() {
   const q=document.getElementById('search-input').value.trim();
   if(!q) return;
@@ -528,8 +563,10 @@ async function init() {
   renderBoard(); updateStats();
 }
 
-document.getElementById('search-input').addEventListener('keydown',e=>{if(e.key==='Enter')doSearch();});
-document.getElementById('ask-btn').addEventListener('click',doSearch);
+document.getElementById('search-input').addEventListener('input', e=>doLocalSearch(e.target.value));
+document.getElementById('search-input').addEventListener('keydown', e=>{ if(e.key==='Enter') document.getElementById('search-btn').click(); if(e.key==='Escape') { e.target.value=''; clearSearch(); } });
+document.getElementById('search-btn').addEventListener('click', ()=>doLocalSearch(document.getElementById('search-input').value));
+document.getElementById('ask-btn').addEventListener('click', doSearch);
 document.getElementById('new-sticky-btn').addEventListener('click',newSticky);
 
 const zone=document.getElementById('upload-zone'),fi=document.getElementById('file-input');
