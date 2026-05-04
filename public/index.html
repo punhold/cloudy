@@ -49,6 +49,8 @@ header h1 span { color: var(--accent); }
 .ask-btn:disabled { background: var(--text-muted); cursor: not-allowed; }
 .search-btn { background: var(--surface); color: var(--accent); border: 1.5px solid var(--accent); border-radius: var(--radius-sm); padding: 7px 14px; font-family: 'Sora', sans-serif; font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.2s; white-space: nowrap; }
 .search-btn:hover { background: var(--accent-light); }
+.clear-btn { background: none; border: none; cursor: pointer; color: var(--text-muted); font-size: 13px; padding: 2px 4px; border-radius: 4px; transition: color 0.15s; line-height: 1; }
+.clear-btn:hover { color: var(--text); }
 
 /* AI bubble */
 .ai-bubble { background: var(--surface); border: 1px solid var(--border-strong); border-left: 3px solid var(--accent); border-radius: var(--radius); padding: 14px 16px; margin-bottom: 1.25rem; display: none; animation: fade-in 0.2s ease; }
@@ -240,6 +242,7 @@ header h1 span { color: var(--accent); }
     <div class="search-box">
       <span class="search-icon">🔍</span>
       <input type="text" id="search-input" placeholder="Buscá en notas y archivos…" />
+      <button class="clear-btn" id="clear-btn" style="display:none">✕</button>
       <button class="search-btn" id="search-btn">Buscar</button>
       <button class="ask-btn" id="ask-btn">✦ IA</button>
     </div>
@@ -563,9 +566,10 @@ async function init() {
   renderBoard(); updateStats();
 }
 
-document.getElementById('search-input').addEventListener('input', e=>doLocalSearch(e.target.value));
-document.getElementById('search-input').addEventListener('keydown', e=>{ if(e.key==='Enter') document.getElementById('search-btn').click(); if(e.key==='Escape') { e.target.value=''; clearSearch(); } });
+document.getElementById('search-input').addEventListener('input', e=>{ doLocalSearch(e.target.value); document.getElementById('clear-btn').style.display=e.target.value?'block':'none'; });
+document.getElementById('search-input').addEventListener('keydown', e=>{ if(e.key==='Enter') document.getElementById('search-btn').click(); if(e.key==='Escape') { e.target.value=''; clearSearch(); document.getElementById('clear-btn').style.display='none'; } });
 document.getElementById('search-btn').addEventListener('click', ()=>doLocalSearch(document.getElementById('search-input').value));
+document.getElementById('clear-btn').addEventListener('click', ()=>{ document.getElementById('search-input').value=''; clearSearch(); document.getElementById('clear-btn').style.display='none'; document.getElementById('search-input').focus(); });
 document.getElementById('ask-btn').addEventListener('click', doSearch);
 document.getElementById('new-sticky-btn').addEventListener('click',newSticky);
 
