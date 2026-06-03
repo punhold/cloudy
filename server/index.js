@@ -1,160 +1,219 @@
-const express = require('express');
-const multer = require('multer');
-const cors = require('cors');
-const fs = require('fs');
-const path = require('path');
-const fetch = require('node-fetch');
+require('dotenv').config({ path: require('path').join(__dirname, '..', '.env') });
 
-const app = express();
-const PORT = process.env.PORT || 3001;
-const UPLOADS_DIR = path.join(__dirname, '..', 'uploads');
-const NOTAS_FILE = path.join(__dirname, '..', 'notas.json');
-const OLLAMA_URL = process.env.OLLAMA_URL || 'http://localhost:11434';
+const express      = require('express');
+const session      = require('express-session');
+const passport     = require('passport');
+const GoogleStrategy = require('passport-google-oauth20').Strategy;
+const multer       = require('multer');
+const cors         = require('cors');
+const fs           = require('fs');
+const path         = require('path');
+const fetch        = require('node-fetch');
+
+const app      = express();
+const PORT     = process.env.PORT || 3002;
+const BASE_URL = process.env.BASE_URL || 'http://localhost:3002';
+const OLLAMA_URL   = process.env.OLLAMA_URL   || 'http://localhost:11434';
 const OLLAMA_MODEL = process.env.OLLAMA_MODEL || 'deepseek-r1:7b';
+const DATA_DIR = path.join(__dirname, '..', 'data');  // data/<userId>/uploads + notas.json
+const QUOTA_BYTES = 100 * 1024 * 1024; // 100 MB por usuario
 
-if (!fs.existsSync(UPLOADS_DIR)) fs.mkdirSync(UPLOADS_DIR, { recursive: true });
-if (!fs.existsSync(NOTAS_FILE)) fs.writeFileSync(NOTAS_FILE, '[]');
+if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
 
-function readNotas() { try { return JSON.parse(fs.readFileSync(NOTAS_FILE, 'utf8')); } catch { return []; } }
-function writeNotas(notas) { fs.writeFileSync(NOTAS_FILE, JSON.stringify(notas, null, 2)); }
+// ── Helpers ──
+function userDir(userId)     { return path.join(DATA_DIR, userId); }
+function uploadsDir(userId)  { return path.join(DATA_DIR, userId, 'uploads'); }
+function notasFile(userId)   { return path.join(DATA_DIR, userId, 'notas.json'); }
 
+function ensureUser(userId) {
+  const ud = uploadsDir(userId);
+  if (!fs.existsSync(ud)) fs.mkdirSync(ud, { recursive: true });
+  const nf = notasFile(userId);
+  if (!fs.existsSync(nf)) fs.writeFileSync(nf, '[]');
+}
+
+function readNotas(userId)        { try { return JSON.parse(fs.readFileSync(notasFile(userId), 'utf8')); } catch { return []; } }
+function writeNotas(userId, data) { fs.writeFileSync(notasFile(userId), JSON.stringify(data, null, 2)); }
+
+function getDirSize(dir) {
+  if (!fs.existsSync(dir)) return 0;
+  return fs.readdirSync(dir).reduce((acc, f) => {
+    try { return acc + fs.statSync(path.join(dir, f)).size; } catch { return acc; }
+  }, 0);
+}
+
+// ── Passport ──
+passport.use(new GoogleStrategy({
+  clientID:     process.env.GOOGLE_CLIENT_ID,
+  clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+  callbackURL:  `${BASE_URL}/auth/google/callback`
+}, (accessToken, refreshToken, profile, done) => {
+  const user = {
+    id:     profile.id,
+    name:   profile.displayName,
+    email:  profile.emails?.[0]?.value || '',
+    avatar: profile.photos?.[0]?.value || ''
+  };
+  ensureUser(user.id);
+  done(null, user);
+}));
+
+passport.serializeUser((user, done)   => done(null, user));
+passport.deserializeUser((user, done) => done(null, user));
+
+// ── Middleware ──
 app.use(cors());
 app.use(express.json());
+app.use(session({
+  secret: process.env.SESSION_SECRET || 'cloudy_secret',
+  resave: false,
+  saveUninitialized: false,
+  cookie: { maxAge: 7 * 24 * 60 * 60 * 1000 } // 7 días
+}));
+app.use(passport.initialize());
+app.use(passport.session());
 
-// Serve static frontend
-app.use(express.static(path.join(__dirname, '..', 'public')));
+// Archivos estáticos — splash y login son públicos
+app.use('/splash.html', express.static(path.join(__dirname, '..', 'public', 'splash.html')));
+app.use('/login.html',  express.static(path.join(__dirname, '..', 'public', 'login.html')));
+app.use('/favicon.ico', express.static(path.join(__dirname, '..', 'public', 'favicon.ico')));
 
-// Multer config — save to uploads/ with original name
+// Auth guard para todo lo demás
+function requireAuth(req, res, next) {
+  if (req.isAuthenticated()) return next();
+  if (req.path.startsWith('/api/')) return res.status(401).json({ error: 'No autenticado' });
+  res.redirect('/login.html');
+}
+
+// Rutas públicas estáticas
+app.get('/',           (req, res) => req.isAuthenticated() ? res.sendFile(path.join(__dirname, '..', 'public', 'index.html')) : res.redirect('/splash.html'));
+app.get('/splash.html',(req, res) => res.sendFile(path.join(__dirname, '..', 'public', 'splash.html')));
+app.get('/login.html', (req, res) => res.sendFile(path.join(__dirname, '..', 'public', 'login.html')));
+
+// ── Auth routes ──
+app.get('/auth/google',
+  passport.authenticate('google', { scope: ['profile', 'email'] })
+);
+app.get('/auth/google/callback',
+  passport.authenticate('google', { failureRedirect: '/login.html' }),
+  (req, res) => res.redirect('/')
+);
+app.get('/auth/logout', (req, res) => {
+  req.logout(() => res.redirect('/login.html'));
+});
+app.get('/api/me', requireAuth, (req, res) => {
+  const used = getDirSize(uploadsDir(req.user.id));
+  res.json({ ...req.user, usedBytes: used, quotaBytes: QUOTA_BYTES });
+});
+
+// ── App estática protegida ──
+app.use(requireAuth, express.static(path.join(__dirname, '..', 'public')));
+
+// ── Multer ──
 const storage = multer.diskStorage({
-  destination: (req, file, cb) => cb(null, UPLOADS_DIR),
+  destination: (req, file, cb) => cb(null, uploadsDir(req.user.id)),
   filename: (req, file, cb) => {
     const safe = file.originalname.replace(/[^a-zA-Z0-9._\-\s]/g, '_');
-    // Avoid overwriting: prefix with timestamp if exists
-    const dest = path.join(UPLOADS_DIR, safe);
-    if (fs.existsSync(dest)) {
-      cb(null, Date.now() + '_' + safe);
-    } else {
-      cb(null, safe);
-    }
+    const dest = path.join(uploadsDir(req.user.id), safe);
+    cb(null, fs.existsSync(dest) ? Date.now() + '_' + safe : safe);
   }
 });
 const upload = multer({
   storage,
-  limits: { fileSize: 20 * 1024 * 1024 }, // 20 MB max
+  limits: { fileSize: 20 * 1024 * 1024 },
   fileFilter: (req, file, cb) => {
-    const allowed = ['.xlsx', '.xls', '.csv', '.txt', '.md', '.pdf', '.docx', '.doc'];
-    const ext = path.extname(file.originalname).toLowerCase();
-    cb(null, allowed.includes(ext));
+    const allowed = ['.xlsx','.xls','.csv','.txt','.md','.pdf','.docx','.doc'];
+    cb(null, allowed.includes(path.extname(file.originalname).toLowerCase()));
   }
 });
 
-// GET /api/files — list all uploaded files
-app.get('/api/files', (req, res) => {
-  const entries = fs.readdirSync(UPLOADS_DIR).map(name => {
-    const stat = fs.statSync(path.join(UPLOADS_DIR, name));
+// ── API Files ──
+app.get('/api/files', requireAuth, (req, res) => {
+  const dir = uploadsDir(req.user.id);
+  if (!fs.existsSync(dir)) return res.json([]);
+  const entries = fs.readdirSync(dir).map(name => {
+    const stat = fs.statSync(path.join(dir, name));
     return { name, size: stat.size, modified: stat.mtime };
   });
   res.json(entries);
 });
 
-// POST /api/upload — upload one or more files
-app.post('/api/upload', upload.array('files', 20), (req, res) => {
-  if (!req.files || req.files.length === 0) return res.status(400).json({ error: 'No files received' });
+app.post('/api/upload', requireAuth, (req, res, next) => {
+  const used = getDirSize(uploadsDir(req.user.id));
+  if (used >= QUOTA_BYTES) return res.status(413).json({ error: 'Cuota de 100 MB alcanzada' });
+  next();
+}, upload.array('files', 20), (req, res) => {
+  if (!req.files?.length) return res.status(400).json({ error: 'No se recibieron archivos' });
   res.json(req.files.map(f => ({ name: f.filename, size: f.size })));
 });
 
-// DELETE /api/files/:name — delete a file
-app.delete('/api/files/:name', (req, res) => {
-  const name = path.basename(req.params.name); // sanitize
-  const filePath = path.join(UPLOADS_DIR, name);
-  if (!fs.existsSync(filePath)) return res.status(404).json({ error: 'File not found' });
+app.delete('/api/files/:name', requireAuth, (req, res) => {
+  const filePath = path.join(uploadsDir(req.user.id), path.basename(req.params.name));
+  if (!fs.existsSync(filePath)) return res.status(404).json({ error: 'Archivo no encontrado' });
   fs.unlinkSync(filePath);
   res.json({ ok: true });
 });
 
-// GET /api/files/:name/download
-app.get('/api/files/:name/download', (req, res) => {
-  const name = path.basename(req.params.name);
-  const filePath = path.join(UPLOADS_DIR, name);
-  if (!fs.existsSync(filePath)) return res.status(404).json({ error: 'File not found' });
+app.get('/api/files/:name/download', requireAuth, (req, res) => {
+  const filePath = path.join(uploadsDir(req.user.id), path.basename(req.params.name));
+  if (!fs.existsSync(filePath)) return res.status(404).json({ error: 'Archivo no encontrado' });
   res.download(filePath);
 });
 
-// GET /api/notas
-app.get('/api/notas', (req, res) => res.json(readNotas()));
+// ── API Notas ──
+app.get('/api/notas', requireAuth, (req, res) => res.json(readNotas(req.user.id)));
 
-// POST /api/notas — create or update a nota
-app.post('/api/notas', (req, res) => {
+app.post('/api/notas', requireAuth, (req, res) => {
   const { id, text, color, x, y } = req.body;
   if (!id) return res.status(400).json({ error: 'Missing id' });
-  const notas = readNotas();
+  const notas = readNotas(req.user.id);
   const idx = notas.findIndex(n => n.id === id);
   if (idx > -1) notas[idx] = { ...notas[idx], text, color, x, y };
   else notas.push({ id, text: text||'', color: color||'#fef08a', x: x||220, y: y||120 });
-  writeNotas(notas);
+  writeNotas(req.user.id, notas);
   res.json({ ok: true });
 });
 
-// DELETE /api/notas/:id
-app.delete('/api/notas/:id', (req, res) => {
-  const id = parseInt(req.params.id);
-  const notas = readNotas().filter(n => n.id !== id);
-  writeNotas(notas);
+app.delete('/api/notas/:id', requireAuth, (req, res) => {
+  const notas = readNotas(req.user.id).filter(n => n.id !== parseInt(req.params.id));
+  writeNotas(req.user.id, notas);
   res.json({ ok: true });
 });
 
-// GET /api/status — check Ollama connection and loaded model
-app.get('/api/status', async (req, res) => {
-  try {
-    const r = await fetch(`${OLLAMA_URL}/api/tags`);
-    const data = await r.json();
-    const models = data.models?.map(m => m.name) || [];
-    const ready = models.some(m => m.startsWith(OLLAMA_MODEL.split(':')[0]));
-    res.json({ ollama: true, model: OLLAMA_MODEL, ready, availableModels: models });
-  } catch {
-    res.json({ ollama: false, model: OLLAMA_MODEL, ready: false });
-  }
-});
-
-// POST /api/search — AI search over file contents using Ollama
-app.post('/api/search', async (req, res) => {
+// ── API Search (Ollama) ──
+app.post('/api/search', requireAuth, async (req, res) => {
   const { query } = req.body;
   if (!query) return res.status(400).json({ error: 'Missing query' });
 
-  // Include notes — goes FIRST so the model prioritizes them
-  const notas = readNotas().filter(n => n.text && n.text.trim());
+  const notas = readNotas(req.user.id).filter(n => n.text?.trim());
   const notasSummary = notas.length
     ? '=== NOTAS DEL USUARIO ===\n' + notas.map((n,i) => `[Nota ${i+1}]: ${n.text.slice(0,800)}`).join('\n\n')
     : '(no hay notas)';
 
-  // Read text content of readable files
-  const textExts = ['.txt', '.md', '.csv'];
-  const files = fs.readdirSync(UPLOADS_DIR);
-  const fileContents = files.filter(name => {
-    const ext = path.extname(name).toLowerCase();
-    return textExts.includes(ext);
-  }).map(name => {
+  const textExts = ['.txt','.md','.csv'];
+  const files = fs.existsSync(uploadsDir(req.user.id)) ? fs.readdirSync(uploadsDir(req.user.id)) : [];
+  const fileContents = files.filter(name => textExts.includes(path.extname(name).toLowerCase())).map(name => {
     let content = '';
-    try { content = fs.readFileSync(path.join(UPLOADS_DIR, name), 'utf8').slice(0, 1500); } catch {}
+    try { content = fs.readFileSync(path.join(uploadsDir(req.user.id), name), 'utf8').slice(0, 1500); } catch {}
     return `=== ARCHIVO: ${name} ===\n${content}`;
   });
 
-  const prompt = `Sos un asistente personal. Tenés acceso a las notas y archivos del usuario. Tu trabajo es buscar información EXACTA dentro de ese contenido y responder con lo que encontrás.
+  const prompt = `Sos un asistente personal. Buscá información EXACTA en el contenido de abajo y respondé con lo que encontrás.
 
 ${notasSummary}
 
 ${fileContents.join('\n\n')}
 
 ---
-Pregunta del usuario: "${query}"
+Pregunta: "${query}"
 
 Instrucciones:
-- Buscá la respuesta ÚNICAMENTE en el contenido de las notas y archivos de arriba.
-- Si encontrás la información, citá exactamente de qué nota o archivo viene.
-- Si NO encontrás la información, respondé: "No encontré esa información en tus notas ni archivos."
-- NO inventes ni supongas información que no esté en el texto.
+- Buscá ÚNICAMENTE en el contenido de arriba.
+- Si encontrás la información, citá de qué nota o archivo viene.
+- Si NO encontrás, respondé: "No encontré esa información en tus notas ni archivos."
+- NO inventes información.
 - Respondé en español, breve y directo.
-- Última línea debe ser "ARCHIVOS:" seguido de los nombres de archivos relevantes separados por coma (o "ninguno").`;
+- Última línea: "ARCHIVOS:" seguido de nombres relevantes separados por coma (o "ninguno").`;
 
   try {
     const response = await fetch(`${OLLAMA_URL}/api/chat`, {
@@ -163,29 +222,18 @@ Instrucciones:
       body: JSON.stringify({
         model: OLLAMA_MODEL,
         stream: false,
-        options: { num_predict: 512, temperature: 0.3 },
+        options: { num_predict: 512, temperature: 0.2 },
         messages: [{ role: 'user', content: prompt }]
       })
     });
-
-    if (!response.ok) {
-      const err = await response.text();
-      return res.status(500).json({ error: `Ollama error: ${err}` });
-    }
-
+    if (!response.ok) return res.status(500).json({ error: `Ollama error: ${await response.text()}` });
     const data = await response.json();
-    const text = data.message?.content || '';
-
-    // Strip <think>...</think> tags that deepseek-r1 adds
-    const cleaned = text.replace(/<think>[\s\S]*?<\/think>/gi, '').trim();
-
-    const [answer, sourceLine] = cleaned.split(/ARCHIVOS:/i);
-    const sources = sourceLine
-      ? sourceLine.split(',').map(s => s.trim()).filter(s => s && s.toLowerCase() !== 'ninguno')
-      : [];
+    const text = (data.message?.content || '').replace(/<think>[\s\S]*?<\/think>/gi, '').trim();
+    const [answer, sourceLine] = text.split(/ARCHIVOS:/i);
+    const sources = sourceLine ? sourceLine.split(',').map(s=>s.trim()).filter(s=>s&&s.toLowerCase()!=='ninguno') : [];
     res.json({ answer: answer.trim(), sources });
   } catch (err) {
-    res.status(500).json({ error: 'No se pudo conectar con Ollama. ¿Está corriendo en Orion?' });
+    res.status(500).json({ error: 'No se pudo conectar con Ollama.' });
   }
 });
 
